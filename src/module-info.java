@@ -6,4 +6,5 @@
  *
  */
 module ExcelOutput {
+	requires java.sql;
 }
