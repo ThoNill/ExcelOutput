@@ -76,14 +76,3 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-/*
-tasks.jar("jar") {
-    manifest.attributes["Main-Class"] = "org.thonill.gui.ApplicationDialog"
-    val dependencies = configurations
-        .runtimeClasspath
-        .get()
-        .map(::zipTree) // OR .map { zipTree(it) }
-    from(dependencies)
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-*/
