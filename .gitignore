@@ -1,9 +1,5 @@
 /libs/
 /bin
 /build/
-/.project
-/.classpath
-/.settings
 /.scannerwork
 /.gradle/
-sonar-project.properties
