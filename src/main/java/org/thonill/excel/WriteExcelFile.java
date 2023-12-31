@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.thonill.checks.Checks.checkFileExists;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
