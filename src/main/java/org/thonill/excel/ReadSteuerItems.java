@@ -36,7 +36,7 @@ public class ReadSteuerItems {
 
 	}
 
-	public List<AusgabeSteuerItem> readSteuerItemsFromExcel() throws  IOException {
+	public List<AusgabeSteuerItem> readSteuerItemsFromExcel() throws IOException {
 		List<AusgabeSteuerItem> items = new ArrayList<>();
 
 		// Open Excel workbook
@@ -95,14 +95,16 @@ public class ReadSteuerItems {
 			HashMap<String, String> data = new HashMap<>();
 			for (int column = 0; column < row.getLastCellNum(); column++) {
 				if (column < header.size()) {
-				LOG.info("key= {0}", header.get(column));
-					LOG.info("value= {0} " , getValue(row, column + 1, evaluator));
+					LOG.info("key= {0}", header.get(column));
+					LOG.info("value= {0} ", getValue(row, column + 1, evaluator));
 					data.put(header.get(column), getValue(row, column + 1, evaluator));
 				} else {
 					LOG.info("NN {0} ", column);
 				}
 			}
 			items.add(new AusgabeSteuerItem(data));
+			break;
+		default:
 			break;
 		}
 	}
@@ -137,6 +139,8 @@ public class ReadSteuerItems {
 			break;
 		case STRING:
 			text = cell.getStringCellValue();
+			break;
+		default:
 			break;
 		}
 		return text.trim();

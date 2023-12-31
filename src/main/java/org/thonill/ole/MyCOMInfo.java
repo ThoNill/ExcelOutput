@@ -10,7 +10,7 @@ import org.thonill.logger.LOG;
 import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.COMUtils.COMInfo;
 
-public class COM_Info {
+public class MyCOMInfo {
 
 	public static void main(String[] args) {
 		FileWriter writer = null;
@@ -21,14 +21,14 @@ public class COM_Info {
 
 			for (COMInfo comInfo : comInfos) {
 				if (comInfo.progID != null) {
-					String result = "CLSID: " + comInfo.clsid + "\n";
-					result += "InprocHandler32: " + comInfo.inprocHandler32 + "\n";
-					result += "InprocServer32: " + comInfo.inprocServer32 + "\n";
-					result += "LocalServer32: " + comInfo.localServer32 + "\n";
-					result += "ProgID: " + comInfo.progID + "\n";
-					result += "ProgTypeLibID: " + comInfo.typeLib + "\n";
+					StringBuilder result = new StringBuilder("CLSID: " + comInfo.clsid + "\n");
+					result.append("InprocHandler32: " + comInfo.inprocHandler32 + "\n");
+					result.append("InprocServer32: " + comInfo.inprocServer32 + "\n");
+					result.append("LocalServer32: " + comInfo.localServer32 + "\n");
+					result.append("ProgID: " + comInfo.progID + "\n");
+					result.append("ProgTypeLibID: " + comInfo.typeLib + "\n\n");
 
-					writer.write(result + "\n");
+					writer.write(result.toString());
 				}
 			}
 

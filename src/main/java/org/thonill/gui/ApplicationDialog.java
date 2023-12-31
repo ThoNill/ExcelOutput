@@ -1,6 +1,5 @@
 package org.thonill.gui;
 
-
 import java.io.File;
 import java.sql.Connection;
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
 
 /**
@@ -83,14 +83,13 @@ public class ApplicationDialog extends LoginDialog {
 	public static Map<String, String> parseArgs(String[] args) {
 		Map<String, String> argMap = new HashMap<>();
 
-		for (int i = 0; i < args.length; i++) {
+		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].startsWith("-")) {
 				String key = args[i].substring(1);
 				if (i < args.length - 1) {
 					argMap.put(key, args[i + 1]);
-					i++;
 				} else {
-					argMap.put(key, null);
+					throw new ApplicationException("ungerade Anzahl von Argumenten");
 				}
 			}
 		}

@@ -17,6 +17,7 @@ import org.thonill.values.Value;
  */
 public class ResultOfStatments {
 
+	private static final String RESULT_OF_STATMENTS_NAME_IS_NULL = "ResultOfStatments name is null";
 	HashMap<String, Value> singularResults;
 	HashMap<String, ArrayValue> multipleResults;
 
@@ -26,7 +27,7 @@ public class ResultOfStatments {
 	}
 
 	public void putSingle(String name, Value value) {
-		checkNotNull(name, "ResultOfStatments name is null");
+		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		checkNotNull(value, "ResultOfStatments value is null");
 
 		LOG.info("putSingle {0} {1}" , name, value.toString());
@@ -34,13 +35,13 @@ public class ResultOfStatments {
 	}
 
 	public void putArray(String name, ArrayValue value) {
-		checkNotNull(name, "ResultOfStatments name is null");
+		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		checkNotNull(value, "ResultOfStatments value is null");
 		multipleResults.put(name, value);
 	}
 
 	public Value getSingleObject(String name) {
-		checkNotNull(name, "ResultOfStatments name is null");
+		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		if (singularResults.containsKey(name)) {
 			LOG.info("getSingle  {0} {1}" , name , singularResults.get(name).toString());
 			return singularResults.get(name);
@@ -51,7 +52,7 @@ public class ResultOfStatments {
 	}
 
 	public ArrayValue getArray(String name) {
-		checkNotNull(name, "ResultOfStatments name is null");
+		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		ArrayValue areaValue = multipleResults.get(name);
 		if (areaValue != null) {
 			LOG.info("getArray  {0} {1}" , name , areaValue.toString());

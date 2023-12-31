@@ -91,31 +91,15 @@ public class ExecutableStatement implements ArrayValue {
 
 		if (this.query != null && !this.query.isEmpty()) {
 			// Prüfe, ob die Query vorbereitet werden kann
-			PreparedStatement stmt = conn.prepareStatement(query);
-			stmt.close();
+			PreparedStatement checkStmt = conn.prepareStatement(query);
+			checkStmt.close();
 		} else {
 			throw new ApplicationException("ExecutableStatement.canPrepareQuery: query is null or empty");
 		}
 
 	}
 
-	/*
-	 * public void exportCvsExcel(Connection conn, String ausgabeDatei, String
-	 * vorlageDatei) throws ApplicationException { checkNotNull(conn,
-	 * "ExecutableStatement.exportToExcel: conn is null");
-	 * checkNotNull(ausgabeDatei,
-	 * "ExecutableStatement.exportToExcel: filename is null");
-	 * checkNotNull(vorlageDatei,
-	 * "ExecutableStatement.exportToExcel: filename is null");
-	 * checkFileExists(vorlageDatei, "ExecutableStatement.exportToExcel",
-	 * "vorlageDatei");
-	 *
-	 * try (Statement stmt = conn.createStatement()) { boolean isResultSet =
-	 * stmt.execute(this.query); if (isResultSet) { try (ResultSet rs =
-	 * stmt.getResultSet()) { writeCsvExcel(ausgabeDatei, vorlageDatei, rs); } } }
-	 *
-	 * }
-	 */
+
 	public void exportToResults(Connection conn, ResultOfStatments result) throws  SQLException {
 		checkNotNull(conn, "ExecutableStatement.exportToExcel: conn is null");
 		checkNotNull(result, "ExecutableStatement.exportToExcel: result is null");
