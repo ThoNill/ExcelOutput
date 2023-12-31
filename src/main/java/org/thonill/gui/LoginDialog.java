@@ -14,11 +14,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.thonill.exceptions.ApplicationException;
-import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
 
 /**
@@ -27,7 +25,7 @@ import org.thonill.sql.ConnectionInfo;
  * start login, test the connection, cancel/exit. It also provides utility
  * methods to get database connections and show message boxes.
  */
-public class LoginDialog extends JDialog {
+public abstract class LoginDialog extends JDialog {
 	/**
 	 *
 	 */
@@ -40,16 +38,6 @@ public class LoginDialog extends JDialog {
 	public LoginDialog() {
 		super();
 		createAndShowGUI();
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				new LoginDialog();
-			} catch (Exception e) {
-				LOG.severe(e.getLocalizedMessage());
-			}
-		});
 	}
 
 	private void createAndShowGUI() {
@@ -113,9 +101,7 @@ public class LoginDialog extends JDialog {
 		frame.setVisible(true);
 	}
 
-	protected void start() {
-
-	}
+	protected abstract void start() ;
 
 	private void testen() {
 		try {
