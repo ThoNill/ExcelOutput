@@ -10,7 +10,7 @@ import java.io.File;
 
 /**
  * Checks if the given file exists.
- * 
+ *
  * @param fileName The path to the file to check.
  * @param where    A description of where the file is expected to exist.
  * @param what     A description of what the file represents.
@@ -18,8 +18,8 @@ import java.io.File;
  */
 public class Checks {
 
-    public static void checkFileExists(String fileName, String where, String what) {
-        checkArgument(new File(fileName).exists(),
-                "" + where + ": the file " + what + " with the name " + fileName + " does not exist");
-    }
+	public static void checkFileExists(String fileName, String where, String what) {
+		checkArgument(new File(fileName).exists(),
+				"" + where + ": the file " + what + " with the name " + fileName + " does not exist");
+	}
 }

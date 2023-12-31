@@ -20,6 +20,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.0.0'
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'eclipse'
+    
  }
 
 java {

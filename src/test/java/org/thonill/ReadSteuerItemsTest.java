@@ -2,7 +2,10 @@ package org.thonill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.List;
+import java.util.logging.Logger;
+
 import org.junit.jupiter.api.Test;
 import org.thonill.actions.AusgabeSteuerItem;
 import org.thonill.excel.ReadSteuerItems;
@@ -12,17 +15,19 @@ import org.thonill.excel.ReadSteuerItems;
  */
 
 public class ReadSteuerItemsTest {
-    @Test
-    void testReadSteuerItemsFromExcel() {
-        try {
-            ReadSteuerItems readSteuerItems = new ReadSteuerItems("src\\test\\resources\\Steuerung.xls");
-            List<AusgabeSteuerItem> items = readSteuerItems.readSteuerItemsFromExcel();
-            assertEquals(4, items.size());
-        } catch (Exception e) {
-            e.printStackTrace();
 
-            fail("readSteuerItemsFromExcel failed");
+	private static final Logger LOG = Logger.getLogger(ReadSteuerItemsTest.class.getName());
 
-        }
-    }
+	@Test
+	void testReadSteuerItemsFromExcel() {
+		try {
+			ReadSteuerItems readSteuerItems = new ReadSteuerItems("src\\test\\resources\\Steuerung.xls");
+			List<AusgabeSteuerItem> items = readSteuerItems.readSteuerItemsFromExcel();
+			assertEquals(4, items.size());
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("readSteuerItemsFromExcel failed");
+
+		}
+	}
 }

@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Logger;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.sql.ExecutableStatement;
@@ -17,149 +19,151 @@ import org.thonill.sql.ExecutableStatementSet;
  */
 
 public class ExecuteStatementTest extends SqlTest {
-    @BeforeAll
-    public static void ExecuteStatementTestInit() {
-        AppTestinit();
-    }
 
-    @Test
-    void testExecuteStatement() {
-        // Test successful query execution
-        try {
-            try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-                assertValidWithResultSet(conn, "SELECT * FROM kunden");
-                assertValidWithoutResultSet(conn, "UPDATE kunden set name = 'Test' where id = 1");
-                assertInvalid(conn, "Uinvalid");
-            }
-        } catch (SQLException e) {
-            fail("Query execution failed");
-        }
-    }
+	private static final String PASSWORD = "";
+	private static final String USER = "sa";
+	private static final Logger LOG = Logger.getLogger(ExecuteStatementTest.class.getName());
 
-    @Test
-    void testCanPrepareQuery() {
-        // Test successful query execution
-        try {
-            try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-                assertPrepare(conn, true, "SELECT * FROM kunden");
-                assertPrepare(conn, true, "UPDATE kunden set name = 'Test' where id = 1");
-                assertPrepare(conn, false, "Uinvalid");
-            }
-        } catch (SQLException e) {
-            fail("Query execution failed");
-        }
-    }
+	@BeforeAll
+	public static void ExecuteStatementTestInit() {
+		AppTestinit();
+	}
 
-    private void assertPrepare(Connection conn, boolean valid, String query) {
+	@Test
+	void testExecuteStatement() {
+		// Test successful query execution
+		try {
+			try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
+				assertValidWithResultSet(conn, "SELECT * FROM kunden");
+				assertValidWithoutResultSet(conn, "UPDATE kunden set name = 'Test' where id = 1");
+				assertInvalid(conn, "Uinvalid");
+			}
+		} catch (SQLException e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed");
+		}
+	}
 
-        ExecutableStatement statement = new ExecutableStatement(query);
-        try {
-            statement.checkQuery(conn);
-            if (!valid) {
-                fail("Query is invalid");
-            }
-        } catch (Exception e) {
-            if (valid) {
-                fail("Query is invalid");
-            }
-        }
-    }
+	@Test
+	void testCanPrepareQuery() {
+		// Test successful query execution
+		try {
+			try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
+				assertPrepare(conn, true, "SELECT * FROM kunden");
+				assertPrepare(conn, true, "UPDATE kunden set name = 'Test' where id = 1");
+				assertPrepare(conn, false, "Uinvalid");
+			}
+		} catch (SQLException e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed");
+		}
+	}
 
-    private void assertValidWithResultSet(Connection conn, String query) {
+	private void assertPrepare(Connection conn, boolean valid, String query) {
 
-        ExecutableStatement statement = new ExecutableStatement(query);
-        try {
-            assertTrue(statement.checkIsSelectStatement(conn), "Statment is not a select");
-        } catch (Exception e) {
-            fail("Query is invalid");
-        }
-    }
+		ExecutableStatement statement = new ExecutableStatement(query);
+		try {
+			statement.checkQuery(conn);
+			if (!valid) {
+				LOG.severe("Invalid Query: " +query);
+				fail("Query is invalid");
+			}
+		} catch (Exception e) {
+			if (valid) {
+				LOG.severe(e.getLocalizedMessage());
+				fail("Query is invalid");
+			}
+		}
+	}
 
-    private void assertValidWithoutResultSet(Connection conn, String query) {
+	private void assertValidWithResultSet(Connection conn, String query) {
 
-        ExecutableStatement statement = new ExecutableStatement(query);
-        try {
-            assertFalse(statement.checkIsSelectStatement(conn), "Statment is a select");
-        } catch (Exception e) {
-            fail("Query execution failed");
-        }
-    }
+		ExecutableStatement statement = new ExecutableStatement(query);
+		try {
+			assertTrue(statement.checkIsSelectStatement(conn), "Statment is not a select");
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query is invalid");
+		}
+	}
 
-    private void assertInvalid(Connection conn, String query) {
+	private void assertValidWithoutResultSet(Connection conn, String query) {
 
-        ExecutableStatement statement = new ExecutableStatement(query);
-        try {
-            statement.checkIsSelectStatement(conn);
-            if (statement.isOk()) {
-                fail("Query is invalid");
-            }
-        } catch (Exception e) {
+		ExecutableStatement statement = new ExecutableStatement(query);
+		try {
+			assertFalse(statement.checkIsSelectStatement(conn), "Statment is a select");
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed");
+		}
+	}
 
-        }
-    }
+	private void assertInvalid(Connection conn, String query) {
 
-    @Test
-    public void exportToExcelTest() {
+		ExecutableStatement statement = new ExecutableStatement(query);
+		try {
+			statement.checkIsSelectStatement(conn);
+			if (statement.isOk()) {
+				fail("Query is invalid");
+			}
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+		}
+	}
 
-        try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
+	@Test
+	public void exportToExcelTest() {
 
-            ExecutableStatementSet statementSet = new ExecutableStatementSet();
-            statementSet.add(new ExecutableStatement("SELECT id as __id, name, ort FROM kunden"));
-            statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabe.xls",
-                    "src\\test\\resources\\TestVorlage.xls");
+		try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Query execution failed" + e.getMessage());
-        }
-    }
+			ExecutableStatementSet statementSet = new ExecutableStatementSet();
+			statementSet.add(new ExecutableStatement("SELECT id as __id, name, ort FROM kunden"));
+			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabe.xls",
+					"src\\test\\resources\\TestVorlage.xls");
 
-    @Test
-    public void exportToExcelTest2() {
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed" + e.getMessage());
+		}
+	}
 
-        try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-            ExecutableStatementSet statementSet = new ExecutableStatementSet();
-            statementSet.add(new ExecutableStatement(
-                    "SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-            statementSet.writeToOutputFile(conn,
-                    "build\\tmp\\test\\TestAusgabeRechnung.xls",
-                    "src\\test\\resources\\RechnungVorlage.xls");
+	@Test
+	public void exportToExcelTest2() {
 
+		try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
+			ExecutableStatementSet statementSet = new ExecutableStatementSet();
+			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
+			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.xls",
+					"src\\test\\resources\\RechnungVorlage.xls");
 
-            statementSet = new ExecutableStatementSet();
-            statementSet.add(new ExecutableStatement(
-                    "SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-   statementSet.add(new ExecutableStatement(
-                    "SELECT name as _KundenName FROM kunden  where id = 5 "));
-   
-                    statementSet.writeToOutputFile(conn,
-                    "build\\tmp\\test\\TestAusgabeRechnungBereich.xls",
-                    "src\\test\\resources\\RechnungVorlageBereich.xls");
-  
-                    statementSet = new ExecutableStatementSet();
-            statementSet.add(new ExecutableStatement(
-                    "SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-            statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.xlsx",
-                    "src\\test\\resources\\RechnungVorlage.xlsx");
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Query execution failed" + e.getMessage());
-        }
-    }
+			statementSet = new ExecutableStatementSet();
+			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
+			statementSet.add(new ExecutableStatement("SELECT name as _KundenName FROM kunden  where id = 5 "));
 
-    @Test
-    public void exportToCSV() {
+			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnungBereich.xls",
+					"src\\test\\resources\\RechnungVorlageBereich.xls");
 
-        try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-            ExecutableStatementSet statementSet = new ExecutableStatementSet();
-            statementSet.add(new ExecutableStatement(
-                    "SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-            statementSet.writeToOutputFile(conn,
-                    "build\\tmp\\test\\TestAusgabeRechnung.csv", null);
+			statementSet = new ExecutableStatementSet();
+			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
+			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.xlsx",
+					"src\\test\\resources\\RechnungVorlage.xlsx");
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed" + e.getMessage());
+		}
+	}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Query execution failed" + e.getMessage());
-        }
-    }
+	@Test
+	public void exportToCSV() {
+
+		try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
+			ExecutableStatementSet statementSet = new ExecutableStatementSet();
+			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
+			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.csv", null);
+
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("Query execution failed" + e.getMessage());
+		}
+	}
 }

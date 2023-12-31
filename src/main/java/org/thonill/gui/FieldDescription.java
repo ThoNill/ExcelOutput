@@ -1,8 +1,8 @@
 package org.thonill.gui;
 
-import org.thonill.replace.ReplaceDescription;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.thonill.replace.ReplaceDescription;
 
 /**
  * FieldDescription represents a field in a form, with a name, value and label.
@@ -10,19 +10,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class FieldDescription extends ReplaceDescription {
 
-    private String fieldLabel;
+	private String fieldLabel;
 
-    public FieldDescription(String fieldName, String fieldValue, String fieldLabel) {
-        super(fieldName, fieldValue);
-        checkNotNull(fieldLabel, "FieldDescription.constructor: fieldLabel is null");
-        this.fieldLabel = fieldLabel;
+	public FieldDescription(String fieldName, String fieldValue, String fieldLabel) {
+		super(fieldName, fieldValue);
+		checkNotNull(fieldLabel, "FieldDescription.constructor: fieldLabel is null");
+		this.fieldLabel = fieldLabel;
 
-        calculatePattern(fieldName, fieldValue);
-    }
+		calculatePattern(fieldName, fieldValue);
+	}
 
-    public String getLabel() {
+	public String getLabel() {
 
-        return fieldLabel;
-    }
+		return fieldLabel;
+	}
 
 }

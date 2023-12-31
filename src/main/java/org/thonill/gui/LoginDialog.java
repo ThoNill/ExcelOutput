@@ -1,130 +1,145 @@
 package org.thonill.gui;
 
-import javax.swing.*;
-import org.thonill.sql.ConnectionInfo;
-import java.awt.*;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.util.logging.Logger;
 
- /**
-     * This class provides a login dialog GUI component.
-     * It contains fields for username, password and buttons for login, test and
-     * cancel.
-     * It has methods to start login, test the connection, cancel/exit.
-     * It also provides utility methods to get database connections and show message
-     * boxes.
-     */
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+
+import org.thonill.sql.ConnectionInfo;
+
+/**
+ * This class provides a login dialog GUI component. It contains fields for
+ * username, password and buttons for login, test and cancel. It has methods to
+ * start login, test the connection, cancel/exit. It also provides utility
+ * methods to get database connections and show message boxes.
+ */
 public class LoginDialog extends JDialog {
-    private JFrame frame;
-    private JTextField usernameField, passwordField;
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 
-    public LoginDialog() {
-        super();
-        createAndShowGUI();
-    }
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new LoginDialog();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+	private static final Logger LOG = Logger.getLogger(LoginDialog.class.getName());
 
-    private void createAndShowGUI() {
-        frame = new JFrame("Anmeldung");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 150);
-        frame.setLayout(new BoxLayout( frame.getContentPane(), BoxLayout.Y_AXIS));
+	private JFrame frame;
+	private JTextField usernameField, passwordField;
 
+	public LoginDialog() {
+		super();
+		createAndShowGUI();
+	}
 
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(() -> {
+			try {
+				new LoginDialog();
+			} catch (Exception e) {
+				LOG.severe(e.getLocalizedMessage());
+			}
+		});
+	}
 
-        JPanel fieldPanel = new JPanel();
-        fieldPanel.setLayout(new GridLayout(2, 2, 5, 5));
-      
+	private void createAndShowGUI() {
+		frame = new JFrame("Anmeldung");
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setSize(300, 150);
+		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 
-        // Labels and TextFields for Username and Password
-        fieldPanel.add(new JLabel("Benutzername:"));
-        usernameField = new JTextField();
-        fieldPanel.add(usernameField);
+		JPanel fieldPanel = new JPanel();
+		fieldPanel.setLayout(new GridLayout(2, 2, 5, 5));
 
-        fieldPanel.add(new JLabel("Passwort:"));
-        passwordField = new JPasswordField();
-        fieldPanel.add(passwordField);
+		// Labels and TextFields for Username and Password
+		fieldPanel.add(new JLabel("Benutzername:"));
+		usernameField = new JTextField();
+		fieldPanel.add(usernameField);
 
-        // Buttons: Start, Test, Abbruch
-        JButton startButton = new JButton("Start");
-        JButton testButton = new JButton("Test");
-        JButton cancelButton = new JButton("Abbruch");
+		fieldPanel.add(new JLabel("Passwort:"));
+		passwordField = new JPasswordField();
+		fieldPanel.add(passwordField);
 
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                start();
-               
-            }
+		// Buttons: Start, Test, Abbruch
+		JButton startButton = new JButton("Start");
+		JButton testButton = new JButton("Test");
+		JButton cancelButton = new JButton("Abbruch");
 
-        });
-        
-        testButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                testen();
-                JOptionPane.showMessageDialog(frame, "Test-Button wurde geklickt!");
-            }
+		startButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				start();
 
-        });
-        
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                abbrechen();
-               
-            }
-            
-        });
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 3, 5, 5));
-        buttonPanel.add(startButton);
-        buttonPanel.add(testButton);
-        buttonPanel.add(cancelButton);
+			}
 
-         frame.add(fieldPanel);
-        frame.add(buttonPanel);
-        frame.setVisible(true);
-    }
+		});
 
+		testButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				testen();
+				JOptionPane.showMessageDialog(frame, "Test-Button wurde geklickt!");
+			}
 
-protected void start() {
-    
-}
-private void testen() {
-       try {
-            ConnectionInfo info = new ConnectionInfo("testDb", "sa", "","app\\src\\test\\resources");
-            Connection conn = info.getConnection();
-           conn.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(frame, "Es ist ein Verbindungsfehler aufgetreten!");  
-        }
-}
-private void abbrechen() {
-    frame.dispose();
-     System.exit(0);
-}
+		});
 
-public Connection getConnection(String connectionName,String connectionInfoPath) throws Exception {
-    ConnectionInfo info = new ConnectionInfo(connectionName, usernameField.getText(), passwordField.getText(),connectionInfoPath); 
-    return info.getConnection();
-}
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				abbrechen();
 
+			}
 
-public void msgBox(String message,int messageType) {
-     JOptionPane.showMessageDialog(frame,message,"Message",messageType);
-}
-   
+		});
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(1, 3, 5, 5));
+		buttonPanel.add(startButton);
+		buttonPanel.add(testButton);
+		buttonPanel.add(cancelButton);
+
+		frame.add(fieldPanel);
+		frame.add(buttonPanel);
+		frame.setVisible(true);
+	}
+
+	protected void start() {
+
+	}
+
+	private void testen() {
+		try {
+			ConnectionInfo info = new ConnectionInfo("testDb", "sa", "", "app\\src\\test\\resources");
+			Connection conn = info.getConnection();
+			conn.close();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(frame, "Es ist ein Verbindungsfehler aufgetreten!");
+		}
+	}
+
+	private void abbrechen() {
+		frame.dispose();
+		System.exit(0);
+	}
+
+	public Connection getConnection(String connectionName, String connectionInfoPath) throws Exception {
+		ConnectionInfo info = new ConnectionInfo(connectionName, usernameField.getText(), passwordField.getText(),
+				connectionInfoPath);
+		return info.getConnection();
+	}
+
+	public void msgBox(String message, int messageType) {
+		JOptionPane.showMessageDialog(frame, message, "Message", messageType);
+	}
 
 }

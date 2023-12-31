@@ -1,17 +1,17 @@
 package org.thonill.values;
 
 /**
- * Value interface defines methods to get the value of an object
- * in different formats like String, double, boolean etc.
+ * Value interface defines methods to get the value of an object in different
+ * formats like String, double, boolean etc.
  */
 public interface Value {
-    String getName();
+	String getName();
 
-    String getString();
+	String getString();
 
-    double getDouble();
+	double getDouble();
 
-    boolean getBoolean();
+	boolean getBoolean();
 
-    String getCSVValue();
+	String getCSVValue();
 }
