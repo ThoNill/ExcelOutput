@@ -4,37 +4,33 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.thonill.checks.Checks.checkFileExists;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-
-/**
- * AusgabeSteuerItem handles the output of tax items to an Excel file.
- * It takes in a data map, SQL file, and Excel template to
- * generate the output file.
- */
-
-import java.util.logging.Logger;
+import java.util.Map;
 
 import org.thonill.excel.ReadSteuerItems;
+import org.thonill.exceptions.ApplicationException;
+import org.thonill.logger.LOG;
 import org.thonill.replace.RawSqlStatement;
 import org.thonill.replace.ReplaceDescription;
 import org.thonill.sql.ExecutableStatementSet;
 
 public class AusgabeSteuerItem {
-	private static final Logger LOG = Logger.getLogger(AusgabeSteuerItem.class.getName());
 
 	String ausgabeDatei;
 	String kunden;
 	String sqlDatei;
 	String excelVorlage;
-	HashMap<String, String> daten;
+	Map<String, String> daten;
 
 	/**
 	 * Constructor for AusgabeSteuerItem. Initializes the object's fields from the
 	 * provided data map. Validates required fields and file paths.
 	 */
-	public AusgabeSteuerItem(HashMap<String, String> daten) {
+	public AusgabeSteuerItem(Map<String, String> daten) {
 		this.daten = daten;
 		this.ausgabeDatei = getValue(daten, "ausgabeDatei", true);
 		this.kunden = getValue(daten, "kunden", true);
@@ -53,7 +49,7 @@ public class AusgabeSteuerItem {
 	 * exception if the key is not found and b is true. Returns an empty string if
 	 * the key is not found and b is false.
 	 */
-	private static String getValue(HashMap<String, String> data, String key, boolean b) {
+	private static String getValue(Map<String, String> data, String key, boolean b) {
 		checkNotNull(data, "AusgabeSteuerItem.extracted: data is null");
 		checkNotNull(key, "AusgabeSteuerItem.extracted: key is null");
 
@@ -61,7 +57,7 @@ public class AusgabeSteuerItem {
 			return data.get(key);
 		} else {
 			if (b) {
-				throw new RuntimeException("AusgabeSteuerItem.extracted: key " + key + " not found");
+				throw new ApplicationException("AusgabeSteuerItem.extracted: key " + key + " not found");
 			}
 		}
 		return "";
@@ -72,9 +68,11 @@ public class AusgabeSteuerItem {
 	 * output file.
 	 *
 	 * @param conn Database connection to use for executing SQL statements.
-	 * @throws Exception If there is an error generating the output file.
+	 * @throws ApplicationException If there is an error generating the output file.
+	 * @throws IOException 
+	 * @throws SQLException 
 	 */
-	public void createAusgabeDatei(Connection conn) throws Exception {
+	public void createAusgabeDatei(Connection conn) throws  IOException, SQLException {
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDatei: conn is null");
 		showAbsolutePath(ausgabeDatei);
 		showAbsolutePath(excelVorlage);
@@ -97,9 +95,11 @@ public class AusgabeSteuerItem {
 	 *
 	 * @param steuerItems The list of AusgabeSteuerItem to process.
 	 * @param conn        The database connection to use.
-	 * @throws Exception If there is an error generating the output files.
+	 * @throws ApplicationException If there is an error generating the output files.
+	 * @throws IOException 
+	 * @throws SQLException 
 	 */
-	public static void createAusgabeDateien(List<AusgabeSteuerItem> steuerItems, Connection conn) throws Exception {
+	public static void createAusgabeDateien(List<AusgabeSteuerItem> steuerItems, Connection conn) throws  IOException, SQLException {
 		checkNotNull(steuerItems, "AusgabeSteuerItem.createAusgabeDateien: steuerItems is null");
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDateien: conn is null");
 
@@ -118,10 +118,12 @@ public class AusgabeSteuerItem {
 	 *                    process.
 	 * @param conn        Database connection to use for generating the output
 	 *                    files.
-	 * @throws Exception If there is an error reading the input or generating the
+	 * @throws ApplicationException If there is an error reading the input or generating the
 	 *                   output.
+	 * @throws IOException 
+	 * @throws SQLException 
 	 */
-	public static void createAusgabeDateien(String steuerDatei, Connection conn) throws Exception {
+	public static void createAusgabeDateien(String steuerDatei, Connection conn) throws  IOException, SQLException {
 		checkNotNull(steuerDatei, "AusgabeSteuerItem.createAusgabeDateien: steuerDatei is null");
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDateien: conn is null");
 		checkFileExists(steuerDatei, "AusgabeSteuerItem.createAusgabeDateien", "steuerDatei");

@@ -41,7 +41,7 @@ public class FormulaHelper {
 		checkNotNull(org, "FormulaHelper constructor org is null");
 
 		Sheet sheet = org.getSheet();
-		if (org == null || sheet == null || org.getCellType() != CellType.FORMULA || org.isPartOfArrayFormulaGroup())
+		if (sheet == null || org.getCellType() != CellType.FORMULA || org.isPartOfArrayFormulaGroup())
 			return;
 		this.currentRow = org.getRowIndex();
 		this.currentColumn = org.getColumnIndex();

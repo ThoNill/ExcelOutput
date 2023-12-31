@@ -1,10 +1,10 @@
 package org.thonill.gui;
 
+
 import java.io.File;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.logger.LOG;
 
 /**
  * ApplicationDialog provides a dialog for selecting a file and connecting to a
@@ -23,8 +24,6 @@ public class ApplicationDialog extends LoginDialog {
 	*
 	*/
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger LOG = Logger.getLogger(ApplicationDialog.class.getName());
 
 	private String pathString;
 	private String connectionName;

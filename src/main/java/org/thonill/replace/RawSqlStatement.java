@@ -3,14 +3,15 @@ package org.thonill.replace;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.thonill.checks.Checks.checkFileExists;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
+import org.thonill.logger.LOG;
 import org.thonill.sql.ExecutableStatement;
 import org.thonill.sql.ExecutableStatementSet;
 
@@ -20,7 +21,6 @@ import org.thonill.sql.ExecutableStatementSet;
  */
 
 public class RawSqlStatement {
-	private static final Logger LOG = Logger.getLogger(RawSqlStatement.class.getName());
 
 	private String query;
 
@@ -33,11 +33,11 @@ public class RawSqlStatement {
 		return query;
 	}
 
-	public static List<RawSqlStatement> getRawSqlStatements(String sqlFile) throws Exception {
+	public static List<RawSqlStatement> getRawSqlStatements(String sqlFile) throws  IOException {
 		checkNotNull(sqlFile, "RawSqlStatement.getRawSqlStatements: sqlFile is null");
 		checkFileExists(sqlFile, "RawSqlStatement.getRawSqlStatements", "sqlFile");
 		String querys = Files.readString(Paths.get(sqlFile));
-		LOG.info("Querys: " + querys.replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r"));
+		LOG.info("Querys: {0} ",querys.replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r"));
 		SplitSqlText splitter = new SplitSqlText();
 
 		return splitter.extractList(querys);
@@ -52,12 +52,12 @@ public class RawSqlStatement {
 		return new ExecutableStatement(acc.getText());
 	}
 
-	public static List<ReplaceDescription> createReplaceDescriptions(HashMap<String, String> replacements) {
+	public static List<ReplaceDescription> createReplaceDescriptions(Map<String, String> replacements) {
 		checkNotNull(replacements, "RawSqlStatement.createReplaceDescriptions: replacements is null");
 
 		List<ReplaceDescription> descriptions = new ArrayList<>();
 		for (Map.Entry<String, String> entry : replacements.entrySet()) {
-			LOG.info("Key: " + entry.getKey() + " Value: " + entry.getValue());
+			LOG.info("Key: {0} {1}" ,entry.getKey() , " Value: " + entry.getValue());
 			descriptions.add(new ReplaceDescription(entry.getKey(), entry.getValue()));
 		}
 		return descriptions;

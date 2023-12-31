@@ -46,7 +46,6 @@ public class SafeStyleAndType {
 			cell.setBlank();
 			break;
 		case ERROR:
-			// cell.setCellErrorValue(rs.getErrorCode(i));
 			cell.setCellFormula(value.getString());
 			break;
 		case FORMULA:

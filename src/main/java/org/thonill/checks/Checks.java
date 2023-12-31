@@ -18,6 +18,10 @@ import java.io.File;
  */
 public class Checks {
 
+	private Checks() {
+		super();
+	}
+	
 	public static void checkFileExists(String fileName, String where, String what) {
 		checkArgument(new File(fileName).exists(),
 				"" + where + ": the file " + what + " with the name " + fileName + " does not exist");

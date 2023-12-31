@@ -2,7 +2,8 @@ package org.thonill.replace;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.thonill.logger.LOG;
 
 /**
  * This class splits SQL text into individual SQL statements. It parses the
@@ -11,7 +12,6 @@ import java.util.logging.Logger;
  */
 
 public class SplitSqlText {
-	private static final Logger LOG = Logger.getLogger(SplitSqlText.class.getName());
 
 	StringBuilder sb = new StringBuilder();
 
@@ -46,7 +46,7 @@ public class SplitSqlText {
 	}
 
 	private void doChar(List<RawSqlStatement> statements, char c, char lc) {
-		LOG.info("c=" + ((c == '\n') ? "\\n" : "" + c) + " status=" + status.name());
+		LOG.info("c= {0}  status= {1} " , ((c == '\n') ? "\\n" : "" + c) , status.name());
 		if (c == '\r' || c == '\t') {
 			c = ' ';
 		}
@@ -137,7 +137,7 @@ public class SplitSqlText {
 			break;
 
 		}
-		LOG.info(" to status=" + status.name());
+		LOG.info(" to status= {0}",status.name());
 	}
 
 	private void addSqlStatement(List<RawSqlStatement> statements) {

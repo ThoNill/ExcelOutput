@@ -2,8 +2,6 @@ package org.thonill.excel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.logging.Logger;
-
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Name;
@@ -13,13 +11,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.CellReference.NameType;
+import org.thonill.logger.LOG;
 import org.thonill.values.ArrayValue;
 import org.thonill.values.Value;
 
 public class SheetArea {
 
-	private static final Logger LOG = Logger.getLogger(SheetArea.class.getName());
-
+	
+	private static final String FORMULA_MARKER = "FORMULA(";
 	private SpreadsheetVersion ssVersion = SpreadsheetVersion.EXCEL2007;
 	private Sheet sheet;
 	private Name bereichsName = null;
@@ -77,7 +76,7 @@ public class SheetArea {
 			CellReference end = new CellReference(rowNum - 1, bereichFirstCol + colNum - 1, true, true);
 
 			AreaReference aref = new AreaReference(begin, end, ssVersion);
-			LOG.info("AreaReferenz: " + aref.formatAsString());
+			LOG.info("AreaReferenz: {0}",aref.formatAsString());
 			bereichsName.setRefersToFormula(aref.formatAsString());
 		}
 	}
@@ -89,8 +88,7 @@ public class SheetArea {
 		NameType nameType = CellReference.classifyCellReference(reference, ssVersion);
 		// Assuming cellReference is something like "Sheet1!A1"
 		if (nameType.equals(NameType.BAD_CELL_OR_NAMED_RANGE) || nameType.equals(NameType.NAMED_RANGE)) {
-			AreaReference aref = new AreaReference(reference, ssVersion);
-			return aref;
+			return new AreaReference(reference, ssVersion);
 		}
 		return null;
 	}
@@ -118,15 +116,14 @@ public class SheetArea {
 					if (cellToBeCopied != null) {
 						Cell cellToBeAdded = newRow.createCell(j);
 						cellToBeAdded.setCellStyle(cellToBeCopied.getCellStyle());
-						// cellToBeAdded.setCellType(cellToBeCopied.getCellType());
 						switch (cellToBeCopied.getCellType()) {
 						case NUMERIC:
 							cellToBeAdded.setCellValue(cellToBeCopied.getNumericCellValue());
 							break;
 						case STRING:
 							String text = cellToBeCopied.getStringCellValue();
-							if (!formulaRoString && text.startsWith("FORMULA(")) {
-								cellToBeAdded.setCellFormula(text.substring("FORMULA(".length()));
+							if (!formulaRoString && text.startsWith(FORMULA_MARKER)) {
+								cellToBeAdded.setCellFormula(text.substring(FORMULA_MARKER.length()));
 							} else {
 								cellToBeAdded.setCellValue(text);
 							}
@@ -139,9 +136,9 @@ public class SheetArea {
 							break;
 						case FORMULA:
 							String formula = cellToBeCopied.getCellFormula();
-							LOG.info("Formula: " + formula);
+							LOG.info("Formula: {0}" , formula);
 							if (formulaRoString) {
-								cellToBeAdded.setCellValue("FORMULA(" + formula);
+								cellToBeAdded.setCellValue(FORMULA_MARKER + formula);
 							} else {
 								cellToBeAdded.setCellFormula(formula);
 							}
@@ -180,8 +177,8 @@ public class SheetArea {
 		bereichFirstCol = areaReference.getFirstCell().getCol();
 		bereichLastRow = areaReference.getLastCell().getRow();
 
-		LOG.info(" bereichFirstRow " + bereichFirstRow);
-		LOG.info(" bereichLastRow " + bereichLastRow);
-		LOG.info(" bereichFirstCol " + bereichFirstCol);
+		LOG.info(" bereichFirstRow {0}" , bereichFirstRow);
+		LOG.info(" bereichLastRow {0}" ,bereichLastRow);
+		LOG.info(" bereichFirstCol {0}" , bereichFirstCol);
 	}
 }

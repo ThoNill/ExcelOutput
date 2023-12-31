@@ -1,6 +1,6 @@
 package org.thonill.ole.jacob;
 
-import java.util.logging.Logger;
+import org.thonill.logger.LOG;
 
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
@@ -11,7 +11,6 @@ import com.jacob.com.Dispatch;
  */
 
 public class ExcelPivotTableUpdater {
-	private static final Logger LOG = Logger.getLogger(ExcelPivotTableUpdater.class.getName());
 
 	public static void main(String[] args) {
 		ComThread.InitSTA();

@@ -27,10 +27,10 @@ public class SafeStylesAndTypes {
 		checkNotNull(sheet, "SafeStylesAndTypes sheet is null");
 		checkNotNull(values, "SafeStylesAndTypes values is null");
 
-		Row row = sheet.createRow(rowNum++);
+		Row row = sheet.createRow(rowNum);
 		int i = 0;
 		int iValue = 0;
-		int max = Math.max(values.length, safe.length);
+		int max = Math.max(values.length, getSize());
 		for (i = 0; i < max; i++) {
 			Cell cell = row.createCell(colNum + i);
 			if (safe != null && i < safe.length) {
@@ -51,7 +51,7 @@ public class SafeStylesAndTypes {
 	}
 
 	public int getSize() {
-		return safe.length;
+		return (safe == null) ? 0 : safe.length;
 	}
 
 }

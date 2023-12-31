@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.thonill.exceptions.ApplicationException;
 import org.thonill.values.Value;
 
 /**
@@ -33,7 +34,7 @@ public class ResultSetValue implements Value {
 		try {
 			return rs.getString(pos);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new ApplicationException(e);
 		}
 	}
 
@@ -42,7 +43,7 @@ public class ResultSetValue implements Value {
 		try {
 			return rs.getDouble(pos);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new ApplicationException(e);
 		}
 	}
 
@@ -51,7 +52,7 @@ public class ResultSetValue implements Value {
 		try {
 			return rs.getBoolean(pos);
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new ApplicationException(e);
 		}
 	}
 
@@ -77,7 +78,7 @@ public class ResultSetValue implements Value {
 				return rs.getString(pos);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new ApplicationException(e);
 		}
 	}
 }

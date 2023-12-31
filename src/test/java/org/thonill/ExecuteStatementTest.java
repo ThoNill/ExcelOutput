@@ -7,13 +7,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.thonill.logger.LOG;
 import org.thonill.sql.ExecutableStatement;
 import org.thonill.sql.ExecutableStatementSet;
-
 /**
  * Test class for executing SQL statements.
  */
@@ -22,7 +21,6 @@ public class ExecuteStatementTest extends SqlTest {
 
 	private static final String PASSWORD = "";
 	private static final String USER = "sa";
-	private static final Logger LOG = Logger.getLogger(ExecuteStatementTest.class.getName());
 
 	@BeforeAll
 	public static void ExecuteStatementTestInit() {

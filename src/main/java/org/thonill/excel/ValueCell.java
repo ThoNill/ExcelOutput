@@ -2,8 +2,6 @@ package org.thonill.excel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.logging.Logger;
-
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Name;
@@ -12,6 +10,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.CellReference.NameType;
+import org.thonill.logger.LOG;
 import org.thonill.values.Value;
 
 /**
@@ -19,7 +18,6 @@ import org.thonill.values.Value;
  * write values to cells in a sheet.
  */
 public class ValueCell {
-	private static final Logger LOG = Logger.getLogger(ValueCell.class.getName());
 
 	private SpreadsheetVersion ssVersion = SpreadsheetVersion.EXCEL2007;
 	private Sheet sheet;
@@ -64,8 +62,8 @@ public class ValueCell {
 			if (cell == null) {
 				cell = sheetRow.createCell(col);
 			}
-			LOG.info("value = " + value.getString());
-			LOG.info("ort = " + row + " " + col);
+			LOG.info("value = {0}" , value.getString());
+			LOG.info("ort = {0}" , row + " " + col);
 			// Set the cell value
 			SafeStyleAndType.setCellValue(cell.getCellType(), cell, value);
 		}

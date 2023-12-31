@@ -4,7 +4,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,6 +17,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.thonill.exceptions.ApplicationException;
+import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
 
 /**
@@ -32,10 +33,9 @@ public class LoginDialog extends JDialog {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger LOG = Logger.getLogger(LoginDialog.class.getName());
-
 	private JFrame frame;
-	private JTextField usernameField, passwordField;
+	private JTextField usernameField;
+	private JPasswordField passwordField;
 
 	public LoginDialog() {
 		super();
@@ -132,7 +132,7 @@ public class LoginDialog extends JDialog {
 		System.exit(0);
 	}
 
-	public Connection getConnection(String connectionName, String connectionInfoPath) throws Exception {
+	public Connection getConnection(String connectionName, String connectionInfoPath) throws ApplicationException {
 		ConnectionInfo info = new ConnectionInfo(connectionName, usernameField.getText(), passwordField.getText(),
 				connectionInfoPath);
 		return info.getConnection();

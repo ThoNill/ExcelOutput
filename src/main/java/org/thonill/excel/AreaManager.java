@@ -4,13 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
+import org.thonill.exceptions.ApplicationException;
+import org.thonill.logger.LOG;
 import org.thonill.sql.ResultOfStatments;
 import org.thonill.values.ArrayValue;
 import org.thonill.values.Value;
@@ -31,8 +32,6 @@ import org.thonill.values.Value;
  */
 public class AreaManager {
 
-	private static final Logger LOG = Logger.getLogger(AreaManager.class.getName());
-
 	private List<SheetArea> areas = new ArrayList<>();
 	private List<ValueCell> cells = new ArrayList<>();
 
@@ -41,14 +40,14 @@ public class AreaManager {
 		checkNotNull(result, " result is null");
 
 		for (Name name : workbook.getAllNames()) {
-			LOG.info("Name: " + name.getNameName() + " " + name.getSheetIndex());
+			LOG.info("Name: {0} {1} " , name.getNameName(),name.getSheetIndex());
 
 			addCell(workbook, result, name);
 
 			addArea(workbook, result, name);
 		}
 
-		if (areas.size() == 0) {
+		if (areas.isEmpty()) {
 			ArrayValue arrayValue = result.getArrays().iterator().next();
 			Name name = searchArea(workbook, result);
 			if (name != null) {
@@ -81,7 +80,7 @@ public class AreaManager {
 
 		AreaReference aref = new AreaReference(begin, end, workbook.getSpreadsheetVersion());
 
-		LOG.info("AreaReferenz: " + aref.formatAsString());
+		LOG.info("AreaReferenz: {0} ",aref.formatAsString());
 		name.setRefersToFormula(aref.formatAsString());
 		addArea(workbook, name, arrayValue);
 	}
@@ -93,7 +92,7 @@ public class AreaManager {
 				LOG.info("Name: " + name.getNameName() + " " + name.getSheetIndex() + " " + value.toString());
 				cells.add(new ValueCell(workbook, name, value));
 			} else {
-				throw new RuntimeException("Name " + name.getNameName() + " has no sheet index");
+				throw new ApplicationException("Name " + name.getNameName() + " has no sheet index");
 			}
 		}
 	}
@@ -107,10 +106,10 @@ public class AreaManager {
 
 	private void addArea(Workbook workbook, Name name, ArrayValue arrayValue) {
 		if (name.getSheetIndex() >= 0) {
-			LOG.info("Name: " + name.getNameName() + " " + name.getSheetIndex() + " " + arrayValue.toString());
+			LOG.info("Name: {0} {1} {2} " , name.getNameName() , name.getSheetIndex(),arrayValue.toString());
 			areas.add(new SheetArea(workbook, name, arrayValue));
 		} else {
-			throw new RuntimeException("Name " + name.getNameName() + " has no sheet index");
+			throw new ApplicationException("Name " + name.getNameName() + " has no sheet index");
 		}
 	}
 

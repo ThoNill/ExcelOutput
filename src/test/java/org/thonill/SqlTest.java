@@ -14,12 +14,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
-
 /**
  * SqlTest provides tests for database connectivity and operations.
  */
@@ -27,7 +26,6 @@ import org.thonill.sql.ConnectionInfo;
 public class SqlTest {
 	private static final String PASSWORD = "";
 	private static final String USER = "sa";
-	private static final Logger LOG = Logger.getLogger(SqlTest.class.getName());
 	public static final String url = "jdbc:h2:./build/tmp/test/h2test";
 	private static final Random random = new Random();
 

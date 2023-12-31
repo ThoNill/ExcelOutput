@@ -1,6 +1,8 @@
 package org.thonill.sql;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.thonill.excel.WriteCSVFile;
@@ -13,13 +15,13 @@ public class ExecutableStatementSet extends ArrayList<ExecutableStatement> {
 		super();
 	}
 
-	public void checkQuerys(Connection conn) throws Exception {
+	public void checkQuerys(Connection conn) throws  SQLException {
 		for (ExecutableStatement statement : this) {
 			statement.checkQuery(conn);
 		}
 	}
 
-	public ResultOfStatments execute(Connection conn) throws Exception {
+	public ResultOfStatments execute(Connection conn) throws  SQLException {
 		ResultOfStatments results = new ResultOfStatments();
 		for (ExecutableStatement statement : this) {
 			statement.exportToResults(conn, results);
@@ -33,8 +35,7 @@ public class ExecutableStatementSet extends ArrayList<ExecutableStatement> {
 		}
 	}
 
-	public void writeToOutputFile(Connection conn, String ausgabeDatei, String vorlageDatei) throws Exception {
-
+	public void writeToOutputFile(Connection conn, String ausgabeDatei, String vorlageDatei) throws  SQLException, IOException {
 		checkQuerys(conn);
 		ResultOfStatments results = execute(conn);
 

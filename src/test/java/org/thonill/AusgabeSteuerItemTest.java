@@ -4,17 +4,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.actions.AusgabeSteuerItem;
-
+import org.thonill.logger.LOG;
 /**
  * Test class for AusgabeSteuerItem
  */
 public class AusgabeSteuerItemTest extends SqlTest {
-	private static final Logger LOG = Logger.getLogger(AusgabeSteuerItemTest.class.getName());
 
 	@BeforeAll
 	public static void AusgabeSteuerItemTestInit() {

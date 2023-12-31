@@ -18,9 +18,13 @@ import com.google.common.base.Charsets;
  */
 
 public class WriteCSVFile {
+	
+	private WriteCSVFile() {
+		super();
+	}
 
 	public static void writeResultSetToCSV(String filePath, boolean writeHeaders, ArrayValue arrayValue)
-			throws Exception {
+			throws  IOException, SQLException {
 		checkNotNull(arrayValue, "WriteCSVFile.writeResultSetToCSV: arrayValue is null");
 		checkNotNull(filePath, "WriteCSVFile.writeResultSetToCSV: filePath is null");
 

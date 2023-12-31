@@ -5,11 +5,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.thonill.checks.Checks.checkFileExists;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -18,13 +18,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.logger.LOG;
 
 /**
  * This class reads tax items from an Excel file.
  */
 
 public class ReadSteuerItems {
-	private static final Logger LOG = Logger.getLogger(AreaManager.class.getName());
 
 	private String excelFileName;
 	private List<String> header = new ArrayList<>();
@@ -36,15 +36,15 @@ public class ReadSteuerItems {
 
 	}
 
-	public List<AusgabeSteuerItem> readSteuerItemsFromExcel() throws Exception {
+	public List<AusgabeSteuerItem> readSteuerItemsFromExcel() throws  IOException {
 		List<AusgabeSteuerItem> items = new ArrayList<>();
 
 		// Open Excel workbook
 		LOG.info("// Open Excel workbook");
 
-		InputStream ExcelFileToRead = new FileInputStream(excelFileName);
+		InputStream excelFileToRead = new FileInputStream(excelFileName);
 
-		try (HSSFWorkbook workbook = new HSSFWorkbook(ExcelFileToRead)) {
+		try (HSSFWorkbook workbook = new HSSFWorkbook(excelFileToRead)) {
 			// Get first sheet
 
 			checkArgument(workbook.getNumberOfSheets() > 0,
@@ -81,8 +81,6 @@ public class ReadSteuerItems {
 		checkNotNull(items, "ReadSteuerItems.addItem: items is null");
 		checkNotNull(evaluator, "ReadSteuerItems.addItem: evaluator is null");
 
-		// checkNotNull(row,"ReadSteuerItems.addItem: row is null");
-
 		if (row == null || row.getLastCellNum() == 0) {
 			return;
 		}
@@ -97,17 +95,15 @@ public class ReadSteuerItems {
 			HashMap<String, String> data = new HashMap<>();
 			for (int column = 0; column < row.getLastCellNum(); column++) {
 				if (column < header.size()) {
-					LOG.info("key= " + header.get(column));
-					LOG.info("value= " + getValue(row, column + 1, evaluator));
+				LOG.info("key= {0}", header.get(column));
+					LOG.info("value= {0} " , getValue(row, column + 1, evaluator));
 					data.put(header.get(column), getValue(row, column + 1, evaluator));
 				} else {
-					LOG.info("NN " + column);
+					LOG.info("NN {0} ", column);
 				}
 			}
 			items.add(new AusgabeSteuerItem(data));
 			break;
-		default:
-			;
 		}
 	}
 
@@ -142,8 +138,6 @@ public class ReadSteuerItems {
 		case STRING:
 			text = cell.getStringCellValue();
 			break;
-		default:
-			;
 		}
 		return text.trim();
 	}

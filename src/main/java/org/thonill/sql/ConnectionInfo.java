@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
-import java.util.logging.Logger;
+
+import org.thonill.exceptions.ApplicationException;
+import org.thonill.logger.LOG;
 
 /**
  * ConnectionInfo encapsulates the information needed to connect to a database.
@@ -18,7 +20,6 @@ import java.util.logging.Logger;
  */
 
 public class ConnectionInfo {
-	private static final Logger LOG = Logger.getLogger(ConnectionInfo.class.getName());
 
 	private String connectionName;
 	private String connectionUrl;
@@ -46,7 +47,7 @@ public class ConnectionInfo {
 	}
 
 	public ConnectionInfo(String connectionName, String connectionUser, String connectionPassword,
-			String connectionInfoPath) throws Exception {
+			String connectionInfoPath) throws ApplicationException {
 		this.connectionName = connectionName;
 		this.connectionUser = connectionUser;
 		this.connectionPassword = connectionPassword;
@@ -59,7 +60,7 @@ public class ConnectionInfo {
 		loadPropertiesFromFile();
 	}
 
-	public Connection getConnection() throws Exception {
+	public Connection getConnection() throws ApplicationException {
 		try {
 			return DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 		} catch (Exception e) {
@@ -68,19 +69,19 @@ public class ConnectionInfo {
 		return null;
 	}
 
-	private void createDebugInfo(Exception e) throws Exception {
-		LOG.info("ConnectionInfo.getConnection: exception=" + e.getMessage());
+	private void createDebugInfo(Exception e) throws ApplicationException {
+		LOG.info("ConnectionInfo.getConnection: exception= {0}", e.getMessage());
 		File f = getPropertiesFile();
-		LOG.info("ConnectionInfo.getInputStream: " + f.getAbsolutePath());
+		LOG.info("ConnectionInfo.getInputStream: {0}" , f.getAbsolutePath());
 
-		LOG.info("ConnectionInfo.getConnection: connectionDriver=" + connectionDriver);
-		LOG.info("ConnectionInfo.getConnection: connectionUrl=" + connectionUrl);
-		LOG.info("ConnectionInfo.getConnection: connectionUser=" + connectionUser);
+		LOG.info("ConnectionInfo.getConnection: connectionDriver={0}" , connectionDriver);
+		LOG.info("ConnectionInfo.getConnection: connectionUrl={0}" , connectionUrl);
+		LOG.info("ConnectionInfo.getConnection: connectionUser{0}=" ,connectionUser);
 
-		throw e;
+		throw new ApplicationException(e);
 	}
 
-	private void loadPropertiesFromFile() throws Exception {
+	private void loadPropertiesFromFile() throws ApplicationException {
 		try {
 			InputStream in = getInputStream();
 			checkNotNull(in, "ConnectionInfo.loadPropertiesFromFile: can not find " + getPropertiesFilename());

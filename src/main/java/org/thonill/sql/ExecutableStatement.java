@@ -9,6 +9,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.thonill.exceptions.ApplicationException;
 import org.thonill.values.ArrayValue;
 import org.thonill.values.Value;
 
@@ -93,14 +94,14 @@ public class ExecutableStatement implements ArrayValue {
 			PreparedStatement stmt = conn.prepareStatement(query);
 			stmt.close();
 		} else {
-			throw new RuntimeException("ExecutableStatement.canPrepareQuery: query is null or empty");
+			throw new ApplicationException("ExecutableStatement.canPrepareQuery: query is null or empty");
 		}
 
 	}
 
 	/*
 	 * public void exportCvsExcel(Connection conn, String ausgabeDatei, String
-	 * vorlageDatei) throws Exception { checkNotNull(conn,
+	 * vorlageDatei) throws ApplicationException { checkNotNull(conn,
 	 * "ExecutableStatement.exportToExcel: conn is null");
 	 * checkNotNull(ausgabeDatei,
 	 * "ExecutableStatement.exportToExcel: filename is null");
@@ -115,7 +116,7 @@ public class ExecutableStatement implements ArrayValue {
 	 *
 	 * }
 	 */
-	public void exportToResults(Connection conn, ResultOfStatments result) throws Exception {
+	public void exportToResults(Connection conn, ResultOfStatments result) throws  SQLException {
 		checkNotNull(conn, "ExecutableStatement.exportToExcel: conn is null");
 		checkNotNull(result, "ExecutableStatement.exportToExcel: result is null");
 		open(conn);
@@ -131,7 +132,7 @@ public class ExecutableStatement implements ArrayValue {
 		if (rs != null) {
 			return new ResultSetValue("Column" + i, rs, i);
 		}
-		throw new RuntimeException("ExecutableStatement.getPosition: ResultSet is null");
+		throw new ApplicationException("ExecutableStatement.getPosition: ResultSet is null");
 	}
 
 	@Override
@@ -141,10 +142,10 @@ public class ExecutableStatement implements ArrayValue {
 				hasData = rs.next();
 				return hasData();
 			} catch (SQLException e) {
-				throw new RuntimeException("ExecutableStatement.next: " + e.getMessage());
+				throw new ApplicationException("ExecutableStatement.next: " + e.getMessage());
 			}
 		} else {
-			throw new RuntimeException("ExecutableStatement.next: ResultSet is null");
+			throw new ApplicationException("ExecutableStatement.next: ResultSet is null");
 		}
 	}
 
@@ -153,7 +154,7 @@ public class ExecutableStatement implements ArrayValue {
 		try {
 			return rs.getMetaData().getColumnCount();
 		} catch (SQLException e) {
-			throw new RuntimeException("ExecutableStatement.size: " + e.getMessage());
+			throw new ApplicationException("ExecutableStatement.size: " + e.getMessage());
 		}
 	}
 
@@ -197,7 +198,7 @@ public class ExecutableStatement implements ArrayValue {
 			rs.close();
 		} catch (SQLException e) {
 			closeStatement();
-			throw new RuntimeException("ExecutableStatement.close: " + e.getMessage());
+			throw new ApplicationException("ExecutableStatement.close: " + e.getMessage());
 		}
 	}
 
@@ -205,7 +206,7 @@ public class ExecutableStatement implements ArrayValue {
 		try {
 			stmt.close();
 		} catch (SQLException e) {
-			throw new RuntimeException("ExecutableStatement.close: " + e.getMessage());
+			throw new ApplicationException("ExecutableStatement.close: " + e.getMessage());
 		}
 	}
 
