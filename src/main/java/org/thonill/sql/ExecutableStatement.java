@@ -174,6 +174,7 @@ public class ExecutableStatement implements ArrayValue {
 		if (isOk) {
 			closeResultSet();
 			closeStatement();
+			isOk = false;
 		}
 	}
 
