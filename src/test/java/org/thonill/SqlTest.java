@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
+
 /**
  * SqlTest provides tests for database connectivity and operations.
  */
@@ -42,7 +43,7 @@ public class SqlTest {
 	public static void AppTestinit1() {
 
 		try {
-			ConnectionInfo info = new ConnectionInfo("testDb", USER, PASSWORD, "src\\test\\resources");
+			ConnectionInfo info = new ConnectionInfo(USER, PASSWORD, "src\\test\\resources\\testDb.properties");
 			Connection conn = info.getConnection();
 			fillDb(conn);
 

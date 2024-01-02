@@ -32,8 +32,8 @@ public class MyCOMInfo {
 				}
 			}
 
-			LOG.info("file written to: {0}" , filename);
-			LOG.info("Found CLSID`s on the system: {0}" , comInfos.size());
+			LOG.info("file written to: {0}", filename);
+			LOG.info("Found CLSID`s on the system: {0}", comInfos.size());
 		} catch (IOException e) {
 			LOG.severe(e.getLocalizedMessage());
 		} finally {

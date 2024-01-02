@@ -46,7 +46,7 @@ public class SplitSqlText {
 	}
 
 	private void doChar(List<RawSqlStatement> statements, char c, char lc) {
-		LOG.info("c= {0}  status= {1} " , ((c == '\n') ? "\\n" : "" + c) , status.name());
+		LOG.info("c= {0}  status= {1} ", ((c == '\n') ? "\\n" : "" + c), status.name());
 		if (c == '\r' || c == '\t') {
 			c = ' ';
 		}
@@ -137,7 +137,7 @@ public class SplitSqlText {
 			break;
 
 		}
-		LOG.info(" to status= {0}",status.name());
+		LOG.info(" to status= {0}", status.name());
 	}
 
 	private void addSqlStatement(List<RawSqlStatement> statements) {

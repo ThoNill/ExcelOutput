@@ -26,14 +26,14 @@ public class WriteExcelFile {
 		super();
 	}
 
-	private Workbook createWorkbook(String excelFileName) throws  EncryptedDocumentException, IOException {
+	private Workbook createWorkbook(String excelFileName) throws EncryptedDocumentException, IOException {
 		// Open Excel workbook
 		in = new FileInputStream(excelFileName);
 		return WorkbookFactory.create(in);
 	}
 
 	public void writeResultSetToExcel(String ausgabeDatei, String vorlageDatei, ResultOfStatments result)
-			throws  EncryptedDocumentException, IOException {
+			throws EncryptedDocumentException, IOException {
 		checkNotNull(result, "WriteExcel_xls.writeResultSetToExcel: result is null");
 		checkNotNull(vorlageDatei, "WriteExcel_xls.writeResultSetToExcel: excelFileName is null");
 		checkFileExists(vorlageDatei, "WriteExcel_xls.writeResultSetToExcel", "excelFileName");

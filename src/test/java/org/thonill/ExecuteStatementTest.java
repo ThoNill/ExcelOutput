@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
 import org.thonill.sql.ExecutableStatement;
 import org.thonill.sql.ExecutableStatementSet;
+
 /**
  * Test class for executing SQL statements.
  */
@@ -63,7 +64,7 @@ public class ExecuteStatementTest extends SqlTest {
 		try {
 			statement.checkQuery(conn);
 			if (!valid) {
-				LOG.severe("Invalid Query: " +query);
+				LOG.severe("Invalid Query: " + query);
 				fail("Query is invalid");
 			}
 		} catch (Exception e) {

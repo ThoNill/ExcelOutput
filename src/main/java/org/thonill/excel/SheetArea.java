@@ -17,7 +17,6 @@ import org.thonill.values.Value;
 
 public class SheetArea {
 
-	
 	private static final String FORMULA_MARKER = "FORMULA(";
 	private SpreadsheetVersion ssVersion = SpreadsheetVersion.EXCEL2007;
 	private Sheet sheet;
@@ -76,7 +75,7 @@ public class SheetArea {
 			CellReference end = new CellReference(rowNum - 1, bereichFirstCol + colNum - 1, true, true);
 
 			AreaReference aref = new AreaReference(begin, end, ssVersion);
-			LOG.info("AreaReferenz: {0}",aref.formatAsString());
+			LOG.info("AreaReferenz: {0}", aref.formatAsString());
 			bereichsName.setRefersToFormula(aref.formatAsString());
 		}
 	}
@@ -136,7 +135,7 @@ public class SheetArea {
 							break;
 						case FORMULA:
 							String formula = cellToBeCopied.getCellFormula();
-							LOG.info("Formula: {0}" , formula);
+							LOG.info("Formula: {0}", formula);
 							if (formulaRoString) {
 								cellToBeAdded.setCellValue(FORMULA_MARKER + formula);
 							} else {
@@ -177,8 +176,8 @@ public class SheetArea {
 		bereichFirstCol = areaReference.getFirstCell().getCol();
 		bereichLastRow = areaReference.getLastCell().getRow();
 
-		LOG.info(" bereichFirstRow {0}" , bereichFirstRow);
-		LOG.info(" bereichLastRow {0}" ,bereichLastRow);
-		LOG.info(" bereichFirstCol {0}" , bereichFirstCol);
+		LOG.info(" bereichFirstRow {0}", bereichFirstRow);
+		LOG.info(" bereichLastRow {0}", bereichLastRow);
+		LOG.info(" bereichFirstCol {0}", bereichFirstCol);
 	}
 }

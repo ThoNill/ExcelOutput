@@ -20,7 +20,6 @@ import org.thonill.sql.ExecutableStatementSet;
 public class AusgabeSteuerItem {
 
 	String ausgabeDatei;
-	String kunden;
 	String sqlDatei;
 	String excelVorlage;
 	Map<String, String> daten;
@@ -32,7 +31,6 @@ public class AusgabeSteuerItem {
 	public AusgabeSteuerItem(Map<String, String> daten) {
 		this.daten = daten;
 		this.ausgabeDatei = getValue(daten, "ausgabeDatei", true);
-		this.kunden = getValue(daten, "kunden", true);
 		this.sqlDatei = getValue(daten, "sqlDatei", true);
 		checkFileExists(sqlDatei, "AusgabeSteuerItem.constructor", "sqlDatei");
 
@@ -68,10 +66,10 @@ public class AusgabeSteuerItem {
 	 *
 	 * @param conn Database connection to use for executing SQL statements.
 	 * @throws ApplicationException If there is an error generating the output file.
-	 * @throws IOException 
-	 * @throws SQLException 
+	 * @throws IOException
+	 * @throws SQLException
 	 */
-	public void createAusgabeDatei(Connection conn) throws  IOException, SQLException {
+	public void createAusgabeDatei(Connection conn) throws IOException, SQLException {
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDatei: conn is null");
 		showAbsolutePath(ausgabeDatei);
 		showAbsolutePath(excelVorlage);
@@ -94,11 +92,13 @@ public class AusgabeSteuerItem {
 	 *
 	 * @param steuerItems The list of AusgabeSteuerItem to process.
 	 * @param conn        The database connection to use.
-	 * @throws ApplicationException If there is an error generating the output files.
-	 * @throws IOException 
-	 * @throws SQLException 
+	 * @throws ApplicationException If there is an error generating the output
+	 *                              files.
+	 * @throws IOException
+	 * @throws SQLException
 	 */
-	public static void createAusgabeDateien(List<AusgabeSteuerItem> steuerItems, Connection conn) throws  IOException, SQLException {
+	public static void createAusgabeDateien(List<AusgabeSteuerItem> steuerItems, Connection conn)
+			throws IOException, SQLException {
 		checkNotNull(steuerItems, "AusgabeSteuerItem.createAusgabeDateien: steuerItems is null");
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDateien: conn is null");
 
@@ -117,12 +117,12 @@ public class AusgabeSteuerItem {
 	 *                    process.
 	 * @param conn        Database connection to use for generating the output
 	 *                    files.
-	 * @throws ApplicationException If there is an error reading the input or generating the
-	 *                   output.
-	 * @throws IOException 
-	 * @throws SQLException 
+	 * @throws ApplicationException If there is an error reading the input or
+	 *                              generating the output.
+	 * @throws IOException
+	 * @throws SQLException
 	 */
-	public static void createAusgabeDateien(String steuerDatei, Connection conn) throws  IOException, SQLException {
+	public static void createAusgabeDateien(String steuerDatei, Connection conn) throws IOException, SQLException {
 		checkNotNull(steuerDatei, "AusgabeSteuerItem.createAusgabeDateien: steuerDatei is null");
 		checkNotNull(conn, "AusgabeSteuerItem.createAusgabeDateien: conn is null");
 		checkFileExists(steuerDatei, "AusgabeSteuerItem.createAusgabeDateien", "steuerDatei");

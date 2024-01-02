@@ -30,7 +30,7 @@ public class ResultOfStatments {
 		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		checkNotNull(value, "ResultOfStatments value is null");
 
-		LOG.info("putSingle {0} {1}" , name, value.toString());
+		LOG.info("putSingle {0} {1}", name, value.toString());
 		singularResults.put(name, value);
 	}
 
@@ -43,7 +43,7 @@ public class ResultOfStatments {
 	public Value getSingleObject(String name) {
 		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		if (singularResults.containsKey(name)) {
-			LOG.info("getSingle  {0} {1}" , name , singularResults.get(name).toString());
+			LOG.info("getSingle  {0} {1}", name, singularResults.get(name).toString());
 			return singularResults.get(name);
 		} else {
 			LOG.info("getSingle  {0}  not found", name);
@@ -55,10 +55,10 @@ public class ResultOfStatments {
 		checkNotNull(name, RESULT_OF_STATMENTS_NAME_IS_NULL);
 		ArrayValue areaValue = multipleResults.get(name);
 		if (areaValue != null) {
-			LOG.info("getArray  {0} {1}" , name , areaValue.toString());
+			LOG.info("getArray  {0} {1}", name, areaValue.toString());
 			return areaValue;
 		} else {
-			LOG.info("getArray  {0}  not found" , name );
+			LOG.info("getArray  {0}  not found", name);
 		}
 		return null;
 	}

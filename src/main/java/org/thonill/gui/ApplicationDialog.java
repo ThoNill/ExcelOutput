@@ -1,11 +1,15 @@
 package org.thonill.gui;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.thonill.checks.Checks.checkFileExists;
+
 import java.io.File;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -19,24 +23,18 @@ import org.thonill.logger.LOG;
  * database.
  */
 
-public class ApplicationDialog extends LoginDialog {
+public class ApplicationDialog {
 	/**
 	*
 	*/
 	private static final long serialVersionUID = 1L;
 
-	private String pathString;
-	private String connectionName;
-
-	public ApplicationDialog(String pathString, String connectionName) {
+	public ApplicationDialog() {
 		super();
-		this.pathString = pathString;
-		this.connectionName = connectionName;
 
 	}
 
-	@Override
-	protected void start() {
+	protected void showChooser(String pathString, Connection conn) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
 		fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xls"));
@@ -50,13 +48,10 @@ public class ApplicationDialog extends LoginDialog {
 		String absolutePath = new File(pathString).getAbsolutePath();
 		fileChooser.setCurrentDirectory(new File(absolutePath));
 
-		int returnVal = fileChooser.showOpenDialog(this);
+		int returnVal = fileChooser.showOpenDialog(new JFrame());
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			try {
 				String steuerDatei = fileChooser.getSelectedFile().getAbsolutePath();
-				this.pathString = new File(steuerDatei).getParent();
-
-				Connection conn = getConnection(connectionName, pathString);
 				AusgabeSteuerItem.createAusgabeDateien(steuerDatei, conn);
 			} catch (Exception e) {
 				msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
@@ -68,16 +63,85 @@ public class ApplicationDialog extends LoginDialog {
 
 	public static void main(String[] args) {
 		Map<String, String> arguments = parseArgs(args);
-		String pathString = getArgument(arguments, "path", ".\\app\\src\\test\\resources");
-		String connectionName = getArgument(arguments, "connection", "testDb");
+		String connectionFilePath = getFilePath(arguments, "dbDatei");
+		checkNotNull(connectionFilePath, "we need -dbDatei ");
+		String sqlFilePath = getFilePath(arguments, "sqlDatei");
+		checkNotNull(sqlFilePath, "we need -sqlDatei ");
 
-		SwingUtilities.invokeLater(() -> {
-			try {
-				new ApplicationDialog(pathString, connectionName).start();
-			} catch (Exception e) {
-				LOG.severe(e.getLocalizedMessage());
+		SwingUtilities.invokeLater(() ->
+
+		{
+
+			LoginDialog loginDialog = new LoginDialog(connectionFilePath);
+			loginDialog.setVisible(true);
+			Connection conn = loginDialog.getConnection();
+
+			String gui = getArgument(arguments, "gui", null);
+
+			if ("gui".equals(gui)) {
+
+				SwingUtilities.invokeLater(() ->
+
+				{
+					try {
+						new ApplicationDialog().showChooser(".", conn);
+					} catch (Exception e) {
+						LOG.severe(e.getLocalizedMessage());
+					}
+				});
+
+			} else {
+
+				createFiles(arguments, conn);
 			}
 		});
+	}
+
+	private static void createFiles(Map<String, String> arguments, Connection conn) {
+		try {
+			String steuerFilePath = getFilePath(arguments, "steuerDatei");
+
+			String templateFilePath = getFilePath(arguments, "excelVorlage");
+
+			if (steuerFilePath != null) {
+				AusgabeSteuerItem.createAusgabeDateien(steuerFilePath, conn);
+			} else {
+				String outputFilePath = getOutputFilePath(arguments, templateFilePath);
+
+				arguments.put("ausgabeDatei", outputFilePath);
+				AusgabeSteuerItem item = new AusgabeSteuerItem(arguments);
+				item.createAusgabeDatei(conn);
+			}
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+		}
+	}
+
+	private static String getOutputFilePath(Map<String, String> arguments, String templateFilePath) {
+		String outputFilePath = getArgument(arguments, "ausgabeDatei", null);
+
+		if (outputFilePath == null) {
+			outputFilePath = "output" + System.currentTimeMillis();
+			outputFilePath += getPostfix(templateFilePath);
+		}
+		return outputFilePath;
+	}
+
+	private static String getPostfix(String templateFilePath) {
+		boolean createExcelFile = (templateFilePath != null);
+		if (createExcelFile) {
+			return (templateFilePath.endsWith(".xls")) ? ".xls" : ".xlsx";
+		} else {
+			return ".csv";
+		}
+	}
+
+	private static String getFilePath(Map<String, String> arguments, String argName) {
+		String filePath = getArgument(arguments, argName, null);
+		if (filePath == null) {
+			checkFileExists(filePath, "ApplicationDialog.main", argName + "FilePath");
+		}
+		return filePath;
 	}
 
 	public static Map<String, String> parseArgs(String[] args) {
@@ -103,5 +167,9 @@ public class ApplicationDialog extends LoginDialog {
 			return defaultValue;
 		}
 		return value;
+	}
+
+	public void msgBox(String message, int messageType) {
+		JOptionPane.showMessageDialog(new JFrame(), message, "Message", messageType);
 	}
 }

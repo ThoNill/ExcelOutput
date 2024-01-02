@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.actions.AusgabeSteuerItem;
 import org.thonill.logger.LOG;
+
 /**
  * Test class for AusgabeSteuerItem
  */

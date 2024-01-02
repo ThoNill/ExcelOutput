@@ -15,13 +15,13 @@ public class ExecutableStatementSet extends ArrayList<ExecutableStatement> {
 		super();
 	}
 
-	public void checkQuerys(Connection conn) throws  SQLException {
+	public void checkQuerys(Connection conn) throws SQLException {
 		for (ExecutableStatement statement : this) {
 			statement.checkQuery(conn);
 		}
 	}
 
-	public ResultOfStatments execute(Connection conn) throws  SQLException {
+	public ResultOfStatments execute(Connection conn) throws SQLException {
 		ResultOfStatments results = new ResultOfStatments();
 		for (ExecutableStatement statement : this) {
 			statement.exportToResults(conn, results);
@@ -35,7 +35,8 @@ public class ExecutableStatementSet extends ArrayList<ExecutableStatement> {
 		}
 	}
 
-	public void writeToOutputFile(Connection conn, String ausgabeDatei, String vorlageDatei) throws  SQLException, IOException {
+	public void writeToOutputFile(Connection conn, String ausgabeDatei, String vorlageDatei)
+			throws SQLException, IOException {
 		checkQuerys(conn);
 		ResultOfStatments results = execute(conn);
 

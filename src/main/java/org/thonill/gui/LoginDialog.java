@@ -25,18 +25,23 @@ import org.thonill.sql.ConnectionInfo;
  * start login, test the connection, cancel/exit. It also provides utility
  * methods to get database connections and show message boxes.
  */
-public abstract class LoginDialog extends JDialog {
+public class LoginDialog extends JDialog {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private String connectionInfoPath;
+
 	private JFrame frame;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
+	private transient Connection connection;
 
-	public LoginDialog() {
+	public LoginDialog(String connectionInfoPath) {
 		super();
+		connection = null;
+		this.connectionInfoPath = connectionInfoPath;
 		createAndShowGUI();
 	}
 
@@ -101,12 +106,16 @@ public abstract class LoginDialog extends JDialog {
 		frame.setVisible(true);
 	}
 
-	protected abstract void start() ;
+	protected void start() {
+		getConnection();
+		frame.dispose();
+	};
+
+	// "app\\src\\test\\resources"
 
 	private void testen() {
 		try {
-			ConnectionInfo info = new ConnectionInfo("testDb", "sa", "", "app\\src\\test\\resources");
-			Connection conn = info.getConnection();
+			Connection conn = createConnection();
 			conn.close();
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(frame, "Es ist ein Verbindungsfehler aufgetreten!");
@@ -118,9 +127,15 @@ public abstract class LoginDialog extends JDialog {
 		System.exit(0);
 	}
 
-	public Connection getConnection(String connectionName, String connectionInfoPath) throws ApplicationException {
-		ConnectionInfo info = new ConnectionInfo(connectionName, usernameField.getText(), passwordField.getText(),
-				connectionInfoPath);
+	public Connection getConnection() throws ApplicationException {
+		if (connection == null) {
+			connection = createConnection();
+		}
+		return connection;
+	}
+
+	private Connection createConnection() {
+		ConnectionInfo info = new ConnectionInfo(usernameField.getText(), passwordField.getText(), connectionInfoPath);
 		return info.getConnection();
 	}
 

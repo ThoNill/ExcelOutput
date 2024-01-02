@@ -62,8 +62,8 @@ public class ValueCell {
 			if (cell == null) {
 				cell = sheetRow.createCell(col);
 			}
-			LOG.info("value = {0}" , value.getString());
-			LOG.info("ort = {0}" , row + " " + col);
+			LOG.info("value = {0}", value.getString());
+			LOG.info("ort = {0}", row + " " + col);
 			// Set the cell value
 			SafeStyleAndType.setCellValue(cell.getCellType(), cell, value);
 		}

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
+
 /**
  * Test class for ConnectionInfo
  */
@@ -24,7 +25,7 @@ public class ConnectionInfoTest extends SqlTest {
 	@Test
 	void testGetConnection() {
 		try {
-			ConnectionInfo info = new ConnectionInfo("testDb", "sa", "", "src\\test\\resources");
+			ConnectionInfo info = new ConnectionInfo("sa", "", "src\\test\\resources\\testDb.properties");
 			Connection conn = info.getConnection();
 			conn.close();
 		} catch (Exception e) {

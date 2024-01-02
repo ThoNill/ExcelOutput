@@ -32,11 +32,11 @@ public class RawSqlStatement {
 		return query;
 	}
 
-	public static List<RawSqlStatement> getRawSqlStatements(String sqlFile) throws  IOException {
+	public static List<RawSqlStatement> getRawSqlStatements(String sqlFile) throws IOException {
 		checkNotNull(sqlFile, "RawSqlStatement.getRawSqlStatements: sqlFile is null");
 		checkFileExists(sqlFile, "RawSqlStatement.getRawSqlStatements", "sqlFile");
 		String querys = Files.readString(Paths.get(sqlFile));
-		LOG.info("Querys: {0} ",querys.replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r"));
+		LOG.info("Querys: {0} ", querys.replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r"));
 		SplitSqlText splitter = new SplitSqlText();
 
 		return splitter.extractList(querys);
@@ -56,7 +56,7 @@ public class RawSqlStatement {
 
 		List<ReplaceDescription> descriptions = new ArrayList<>();
 		for (Map.Entry<String, String> entry : replacements.entrySet()) {
-			LOG.info("Key: {0} {1}" ,entry.getKey() , " Value: " + entry.getValue());
+			LOG.info("Key: {0} {1}", entry.getKey(), " Value: " + entry.getValue());
 			descriptions.add(new ReplaceDescription(entry.getKey(), entry.getValue()));
 		}
 		return descriptions;

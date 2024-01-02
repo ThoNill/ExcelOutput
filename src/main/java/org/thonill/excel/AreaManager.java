@@ -40,7 +40,7 @@ public class AreaManager {
 		checkNotNull(result, " result is null");
 
 		for (Name name : workbook.getAllNames()) {
-			LOG.info("Name: {0} {1} " , name.getNameName(),name.getSheetIndex());
+			LOG.info("Name: {0} {1} ", name.getNameName(), name.getSheetIndex());
 
 			addCell(workbook, result, name);
 
@@ -80,7 +80,7 @@ public class AreaManager {
 
 		AreaReference aref = new AreaReference(begin, end, workbook.getSpreadsheetVersion());
 
-		LOG.info("AreaReferenz: {0} ",aref.formatAsString());
+		LOG.info("AreaReferenz: {0} ", aref.formatAsString());
 		name.setRefersToFormula(aref.formatAsString());
 		addArea(workbook, name, arrayValue);
 	}
@@ -106,7 +106,7 @@ public class AreaManager {
 
 	private void addArea(Workbook workbook, Name name, ArrayValue arrayValue) {
 		if (name.getSheetIndex() >= 0) {
-			LOG.info("Name: {0} {1} {2} " , name.getNameName() , name.getSheetIndex(),arrayValue.toString());
+			LOG.info("Name: {0} {1} {2} ", name.getNameName(), name.getSheetIndex(), arrayValue.toString());
 			areas.add(new SheetArea(workbook, name, arrayValue));
 		} else {
 			throw new ApplicationException("Name " + name.getNameName() + " has no sheet index");

@@ -99,8 +99,7 @@ public class ExecutableStatement implements ArrayValue {
 
 	}
 
-
-	public void exportToResults(Connection conn, ResultOfStatments result) throws  SQLException {
+	public void exportToResults(Connection conn, ResultOfStatments result) throws SQLException {
 		checkNotNull(conn, "ExecutableStatement.exportToExcel: conn is null");
 		checkNotNull(result, "ExecutableStatement.exportToExcel: result is null");
 		open(conn);
