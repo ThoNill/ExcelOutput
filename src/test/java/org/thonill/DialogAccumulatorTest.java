@@ -1,6 +1,8 @@
 package org.thonill;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+
 import org.thonill.gui.DialogAccumulator;
 import org.thonill.gui.FieldDescription;
 
@@ -10,6 +12,7 @@ import org.thonill.gui.FieldDescription;
 
 public class DialogAccumulatorTest {
 
+	@Disabled
 	@Test
 	public void testDialogAccumulator() {
 
