@@ -23,7 +23,8 @@ import org.thonill.logger.LOG;
  * database.
  */
 
-public class ApplicationDialog {
+public class ApplicationDialog implements Runnable {
+	private Map<String, String> arguments;
 	/**
 	*
 	*/
@@ -63,15 +64,29 @@ public class ApplicationDialog {
 
 	public static void main(String[] args) {
 		Map<String, String> arguments = parseArgs(args);
+
+		new ApplicationDialog().main(arguments);
+	}
+
+	public void main(Map<String, String> arguments) {
+		this.arguments = arguments;
+		new Thread(this).run();
+	}
+
+	@Override
+	public void run() {
+		LOG.info("Start");
+		checkNotNull(arguments, "ApplicationDialog.main arguments is null");
+
 		String connectionFilePath = getFilePath(arguments, "dbDatei");
 		checkNotNull(connectionFilePath, "we need -dbDatei ");
 		String sqlFilePath = getFilePath(arguments, "sqlDatei");
 		checkNotNull(sqlFilePath, "we need -sqlDatei ");
-
+		LOG.info("Vor login Dialog");
 		SwingUtilities.invokeLater(() ->
 
 		{
-
+			LOG.info("Start login Dialog");
 			LoginDialog loginDialog = new LoginDialog(connectionFilePath);
 			loginDialog.setVisible(true);
 			Connection conn = loginDialog.getConnection();
@@ -95,6 +110,13 @@ public class ApplicationDialog {
 				createFiles(arguments, conn);
 			}
 		});
+		while (true) {
+			try {
+				Thread.sleep(1000 * 5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private static void createFiles(Map<String, String> arguments, Connection conn) {
@@ -172,4 +194,5 @@ public class ApplicationDialog {
 	public void msgBox(String message, int messageType) {
 		JOptionPane.showMessageDialog(new JFrame(), message, "Message", messageType);
 	}
+
 }
