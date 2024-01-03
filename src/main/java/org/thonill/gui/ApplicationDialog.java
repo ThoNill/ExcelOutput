@@ -25,6 +25,7 @@ import org.thonill.logger.LOG;
 
 public class ApplicationDialog implements Runnable {
 	private Map<String, String> arguments;
+	private boolean run = true;
 	/**
 	*
 	*/
@@ -108,11 +109,12 @@ public class ApplicationDialog implements Runnable {
 			} else {
 
 				createFiles(arguments, conn);
+				run = false;
 			}
 		});
-		while (true) {
+		while (run) {
 			try {
-				Thread.sleep(1000 * 5);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
