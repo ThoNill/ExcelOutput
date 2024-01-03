@@ -17,6 +17,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.thonill.actions.AusgabeSteuerItem;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
+import org.thonill.sql.ConnectionInfo;
 
 /**
  * ApplicationDialog provides a dialog for selecting a file and connecting to a
@@ -26,6 +27,8 @@ import org.thonill.logger.LOG;
 public class ApplicationDialog implements Runnable {
 	private Map<String, String> arguments;
 	private boolean run = true;
+	private boolean export = false;
+	private ConnectionInfo connectionInfo;
 	/**
 	*
 	*/
@@ -36,31 +39,19 @@ public class ApplicationDialog implements Runnable {
 
 	}
 
-	protected void showChooser(String pathString, Connection conn) {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-		fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xls"));
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setDialogTitle("Datei auswählen");
-		fileChooser.setApproveButtonText("Auswählen");
-		fileChooser.setApproveButtonToolTipText("Auswählen");
-		fileChooser.setApproveButtonMnemonic('A');
-		fileChooser.setFileHidingEnabled(false);
-		String absolutePath = new File(pathString).getAbsolutePath();
-		fileChooser.setCurrentDirectory(new File(absolutePath));
+	protected void showChooser(String key, String pathString) {
+		run = true;
+		LOG.info("showChooser {0} ",pathString);
+		FileChooser choose = new FileChooser(new SetMy<String>() {
 
-		int returnVal = fileChooser.showOpenDialog(new JFrame());
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			try {
-				String steuerDatei = fileChooser.getSelectedFile().getAbsolutePath();
-				AusgabeSteuerItem.createAusgabeDateien(steuerDatei, conn);
-			} catch (Exception e) {
-				msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
-				LOG.severe(e.getLocalizedMessage());
+			public void setValue(String path) {
+				arguments.put(key, path);
+				run = false;
 			}
-
 		}
+
+				, pathString);
+		choose.showDialog();
 	}
 
 	public static void main(String[] args) {
@@ -84,34 +75,71 @@ public class ApplicationDialog implements Runnable {
 		String sqlFilePath = getFilePath(arguments, "sqlDatei");
 		checkNotNull(sqlFilePath, "we need -sqlDatei ");
 		LOG.info("Vor login Dialog");
-		SwingUtilities.invokeLater(() ->
-
-		{
-			LOG.info("Start login Dialog");
-			LoginDialog loginDialog = new LoginDialog(connectionFilePath);
-			loginDialog.setVisible(true);
-			Connection conn = loginDialog.getConnection();
-
-			String gui = getArgument(arguments, "gui", null);
-
-			if ("gui".equals(gui)) {
-
-				SwingUtilities.invokeLater(() ->
-
-				{
-					try {
-						new ApplicationDialog().showChooser(".", conn);
-					} catch (Exception e) {
-						LOG.severe(e.getLocalizedMessage());
-					}
-				});
-
-			} else {
-
-				createFiles(arguments, conn);
-				run = false;
+		SwingUtilities.invokeLater(() -> {
+			try {
+				inGui(connectionFilePath);
+			} catch (Exception e) {
+				msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
+				LOG.severe(e.getLocalizedMessage());
 			}
 		});
+		waitUntilTheEnd();
+		createFiles();
+	}
+
+	private void inGui(String connectionFilePath) {
+		try {
+			LOG.info("Start login Dialog");
+			LoginDialog loginDialog = new LoginDialog(
+
+					new SetMy<ConnectionInfo>() {
+						@Override
+						public void setValue(ConnectionInfo cInfo) {
+							connectionInfo = cInfo;
+							export = (cInfo != null);
+							run = false;
+						}
+					}
+
+					, connectionFilePath);
+			loginDialog.setVisible(true);
+			loginDialog.requestFocus();
+
+		} catch (Exception e) {
+			msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
+			LOG.severe(e.getLocalizedMessage());
+		}
+
+		String steuerFilePath = getFilePath(arguments, "steuerDatei");
+
+		String templateFilePath = getFilePath(arguments, "excelVorlage");
+		LOG.info("steuerFilePath {0} ",steuerFilePath);
+		LOG.info("templateFilePath {0} ",templateFilePath);
+		if (steuerFilePath == null && templateFilePath == null) {
+			try {
+				run = true;
+				showChooser("steuerDatei", ".");
+			} catch (Exception e) {
+				msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
+				LOG.severe(e.getLocalizedMessage());
+			}
+
+		}
+	}
+
+	private void createFiles() {
+		if (!export)
+			return;
+
+		try (Connection conn = connectionInfo.createConnection()) {
+			createFiles(arguments, conn);
+		} catch (Exception e) {
+			msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
+			LOG.severe(e.getLocalizedMessage());
+		}
+	}
+
+	private void waitUntilTheEnd() {
 		while (run) {
 			try {
 				Thread.sleep(1000);

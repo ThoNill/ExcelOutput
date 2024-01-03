@@ -25,31 +25,26 @@ import org.thonill.sql.ConnectionInfo;
  * start login, test the connection, cancel/exit. It also provides utility
  * methods to get database connections and show message boxes.
  */
-public class LoginDialog extends JDialog {
+public class LoginDialog extends JFrame {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String connectionInfoPath;
-
 	private JFrame frame;
+	private String connectionInfoPath;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
-	private transient Connection connection;
+	private SetMy<ConnectionInfo> setMy;
 
-	public LoginDialog(String connectionInfoPath) {
+	public LoginDialog(SetMy<ConnectionInfo> setMy, String connectionInfoPath) {
 		super();
-		connection = null;
+		this.setMy = setMy;
 		this.connectionInfoPath = connectionInfoPath;
 		createAndShowGUI();
 	}
 
 	private void createAndShowGUI() {
-		frame = new JFrame("Anmeldung");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setSize(300, 150);
-		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 
 		JPanel fieldPanel = new JPanel();
 		fieldPanel.setLayout(new GridLayout(2, 2, 5, 5));
@@ -57,10 +52,12 @@ public class LoginDialog extends JDialog {
 		// Labels and TextFields for Username and Password
 		fieldPanel.add(new JLabel("Benutzername:"));
 		usernameField = new JTextField();
+		usernameField.setText("");
 		fieldPanel.add(usernameField);
 
 		fieldPanel.add(new JLabel("Passwort:"));
 		passwordField = new JPasswordField();
+		passwordField.setText("");
 		fieldPanel.add(passwordField);
 
 		// Buttons: Start, Test, Abbruch
@@ -71,7 +68,9 @@ public class LoginDialog extends JDialog {
 		startButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				start();
+				if (e.getSource() == startButton) {
+					start();
+				}
 
 			}
 
@@ -80,8 +79,9 @@ public class LoginDialog extends JDialog {
 		testButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				testen();
-				JOptionPane.showMessageDialog(frame, "Test-Button wurde geklickt!");
+				if (e.getSource() == testButton) {
+					testen();
+				}
 			}
 
 		});
@@ -89,8 +89,9 @@ public class LoginDialog extends JDialog {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				abbrechen();
-
+				if (e.getSource() == cancelButton) {
+					abbrechen();
+				}
 			}
 
 		});
@@ -101,13 +102,19 @@ public class LoginDialog extends JDialog {
 		buttonPanel.add(testButton);
 		buttonPanel.add(cancelButton);
 
+		frame = new JFrame("Anmeldung");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(300, 150);
+		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+
 		frame.add(fieldPanel);
 		frame.add(buttonPanel);
 		frame.setVisible(true);
 	}
 
 	protected void start() {
-		getConnection();
+		frame.setVisible(false);
+		setConnectionInfo();
 		frame.dispose();
 	};
 
@@ -117,30 +124,32 @@ public class LoginDialog extends JDialog {
 		try {
 			Connection conn = createConnection();
 			conn.close();
+			msgBox("Connection ist ok", JOptionPane.OK_OPTION);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(frame, "Es ist ein Verbindungsfehler aufgetreten!");
+			msgBox("Es ist ein Verbindungsfehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	private void abbrechen() {
-		frame.dispose();
-		System.exit(0);
-	}
-
-	public Connection getConnection() throws ApplicationException {
-		if (connection == null) {
-			connection = createConnection();
-		}
-		return connection;
 	}
 
 	private Connection createConnection() {
-		ConnectionInfo info = new ConnectionInfo(usernameField.getText(), passwordField.getText(), connectionInfoPath);
-		return info.getConnection();
+		return createConnectionInfo().createConnection();
+	}
+
+	private void abbrechen() {
+		frame.setVisible(false);
+		frame.dispose();
+		setMy.setValue(null);
+	}
+
+	public void setConnectionInfo() throws ApplicationException {
+		setMy.setValue(createConnectionInfo());
+	}
+
+	private ConnectionInfo createConnectionInfo() {
+		return new ConnectionInfo(usernameField.getText(), passwordField.getText(), connectionInfoPath);
 	}
 
 	public void msgBox(String message, int messageType) {
-		JOptionPane.showMessageDialog(frame, message, "Message", messageType);
+		JOptionPane.showMessageDialog(this, message, "Message", messageType);
 	}
 
 }

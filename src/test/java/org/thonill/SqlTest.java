@@ -44,9 +44,11 @@ public class SqlTest {
 
 		try {
 			ConnectionInfo info = new ConnectionInfo(USER, PASSWORD, "src\\test\\resources\\testDb.properties");
-			Connection conn = info.getConnection();
-			fillDb(conn);
-
+			try (Connection conn = info.createConnection()) {
+				fillDb(conn);
+			} catch (Exception e) {
+				LOG.severe(e.getLocalizedMessage());
+			}
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
 		}

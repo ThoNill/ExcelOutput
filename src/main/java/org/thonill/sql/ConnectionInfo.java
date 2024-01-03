@@ -55,7 +55,7 @@ public class ConnectionInfo {
 		loadPropertiesFromFile();
 	}
 
-	public Connection getConnection() throws ApplicationException {
+	public Connection createConnection() throws ApplicationException {
 		try {
 			return DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 		} catch (Exception e) {
