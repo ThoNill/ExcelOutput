@@ -11,6 +11,7 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.gui.ApplicationDialog;
+import org.thonill.gui.SwingApp;
 import org.thonill.logger.LOG;
 import org.thonill.sql.ConnectionInfo;
 
@@ -42,8 +43,8 @@ public class ApplicationDialogTest extends SqlTest {
 		addResource(args, "excelVorlage", templateFile);
 		addOutput(args, "ausgabeDatei", outputFile);
 
-		new ApplicationDialog().main(args);
-
+	//	new ApplicationDialog().main(args);
+		new SwingApp().main(new String[] {"a"});
 	}
 
 	@Test
