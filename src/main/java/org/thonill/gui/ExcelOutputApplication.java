@@ -38,11 +38,11 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 
 	public void main(Map<String, String> arguments) {
 		this.arguments = arguments;
-		run();
+		runGui();
 	}
 
-	@Override
-	public void run() {
+
+	public void runGui() {
 		LOG.info("Start");
 		checkNotNull(arguments, "ExcelOutputApplication.main arguments is null");
 

@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -72,6 +73,33 @@ public class JPanelAccumulator extends JPanel implements Accumulator<FieldDescri
 			map.put(key, value);
 		}
 	}
+
+	public void setActiveArgument(ActiveArguments map) {
+		for (JTextField textField : textFields) {
+			String value = textField.getText();
+			String key = textField.getName();
+			map.put(key, value);
+		}
+	}
+
+
+	public void storeProperties(Properties map) {
+		for (JTextField textField : textFields) {
+			String value = textField.getText();
+			String key = textField.getName();
+			map.put(key, value);
+		}
+	}
+
+	public void loadProperties(Properties map) {
+		for (JTextField textField : textFields) {
+			String key = textField.getName();
+			String value = map.getProperty(key);
+			textField.setText((value == null) ? "" : value);
+		}
+	}
+
+
 
 	private void setValuesFromHashMap(List<FieldDescription> fields, HashMap<String, String> values) {
 		for (FieldDescription field : fields) {

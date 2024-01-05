@@ -35,6 +35,9 @@ public class AusgabeSteuerItem extends StandardKeys {
 		this.sqlDatei = getValue(daten, SQL_DATEI, true);
 		checkFileExists(sqlDatei, "AusgabeSteuerItem.constructor", SQL_DATEI);
 
+		LOG.info();
+		LOG.info(ausgabeDatei);
+		LOG.severe();
 		boolean b = !ausgabeDatei.endsWith("csv");
 		if (b) {
 			this.excelVorlage = getValue(daten, EXCEL_VORLAGE, b);
@@ -139,7 +142,9 @@ public class AusgabeSteuerItem extends StandardKeys {
 	 * @param filename The file path to log.
 	 */
 	private void showAbsolutePath(String filename) {
-		LOG.info(new File(filename).getAbsolutePath());
+		if (filename != null) {
+			LOG.info(new File(filename).getAbsolutePath());
+		}
 	}
 
 }

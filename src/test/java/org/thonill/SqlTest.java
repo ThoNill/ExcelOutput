@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
@@ -52,6 +53,9 @@ public class SqlTest {
 			LOG.severe(e.getLocalizedMessage());
 		}
 	}
+
+
+
 
 	public static void fillDb() throws SQLException {
 

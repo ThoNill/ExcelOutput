@@ -12,7 +12,23 @@ public class LOG {
 
 	private static final Logger logger = Logger.getLogger(LOG.class.getName());
 
+	public static void info() {
+		LOG.setLevel(Level.INFO);
+	}
+
+	public static void severe() {
+		LOG.setLevel(Level.SEVERE);
+	}
+
+	public static void setLevel(Level level) {
+		logger.setLevel(level);
+	}
+
 	public static void log(Level level, String msg, Object... args) {
+		if (msg == null) {
+			msg = "Message is null";
+		}
+		// System.out.println(MessageFormat.format(msg, args));
 		if (logger.isLoggable(level)) {
 			if (args == null || args.length == 0) {
 				logger.log(level, msg);

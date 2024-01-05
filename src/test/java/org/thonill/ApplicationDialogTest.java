@@ -5,6 +5,7 @@ package org.thonill;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,11 +27,15 @@ public class ApplicationDialogTest extends SqlTest {
 	public static void AppTestinit() {
 
 		try {
+			LOG.setLevel(Level.SEVERE);
 			fillDb();
+
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
 		}
 	}
+
+
 
 	private void callMain(String sqlFile, String steuerFile, String templateFile, String outputFile) {
 		HashMap<String, String> args = new HashMap<>();

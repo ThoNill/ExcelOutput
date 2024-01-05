@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import org.thonill.gui.FieldDescription;
 
 public class VariableExtractor {
-	
+
 	public static List<FieldDescription> extractFieldDescriptionsFromFile(String sqlFile) throws IOException {
 		checkNotNull(sqlFile, "VeriableExtractor.extractFieldsFromFile sqlFile is null");
 		checkFileExists(sqlFile, "ExcelOutputApplication.main", sqlFile + " File does not exist");

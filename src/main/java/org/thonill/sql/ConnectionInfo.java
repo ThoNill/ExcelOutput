@@ -82,7 +82,7 @@ public class ConnectionInfo {
 			Properties properties = new Properties();
 
 			properties.load(in);
-			
+
 			// Lese die Werte aus der Properties-Datei
 			connectionUrl = properties.getProperty("url");
 			connectionDriver = properties.getProperty("driver");
