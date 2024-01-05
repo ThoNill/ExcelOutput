@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
 
+import org.thonill.logger.LOG;
+
 /**
  * This class provides utility methods for performing validation checks.
 */
@@ -23,6 +25,7 @@ public class Checks {
 	}
 
 	public static void checkFileExists(String fileName, String where, String what) {
+		LOG.info(new File(fileName).getAbsolutePath());
 		checkArgument(new File(fileName).exists(),
 				"" + where + ": the file " + what + " with the name " + fileName + " does not exist");
 	}

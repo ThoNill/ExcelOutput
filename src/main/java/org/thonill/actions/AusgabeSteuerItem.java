@@ -12,12 +12,13 @@ import java.util.Map;
 
 import org.thonill.excel.ReadSteuerItems;
 import org.thonill.exceptions.ApplicationException;
+import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 import org.thonill.replace.RawSqlStatement;
 import org.thonill.replace.ReplaceDescription;
 import org.thonill.sql.ExecutableStatementSet;
 
-public class AusgabeSteuerItem {
+public class AusgabeSteuerItem extends StandardKeys {
 
 	String ausgabeDatei;
 	String sqlDatei;
@@ -30,14 +31,14 @@ public class AusgabeSteuerItem {
 	 */
 	public AusgabeSteuerItem(Map<String, String> daten) {
 		this.daten = daten;
-		this.ausgabeDatei = getValue(daten, "ausgabeDatei", true);
-		this.sqlDatei = getValue(daten, "sqlDatei", true);
-		checkFileExists(sqlDatei, "AusgabeSteuerItem.constructor", "sqlDatei");
+		this.ausgabeDatei = getValue(daten, AUSGABE_DATEI, true);
+		this.sqlDatei = getValue(daten, SQL_DATEI, true);
+		checkFileExists(sqlDatei, "AusgabeSteuerItem.constructor", SQL_DATEI);
 
 		boolean b = !ausgabeDatei.endsWith("csv");
 		if (b) {
-			this.excelVorlage = getValue(daten, "excelVorlage", b);
-			checkFileExists(excelVorlage, "AusgabeSteuerItem.constructor", "excelVorlage");
+			this.excelVorlage = getValue(daten, EXCEL_VORLAGE, b);
+			checkFileExists(excelVorlage, "AusgabeSteuerItem.constructor", EXCEL_VORLAGE);
 		}
 	}
 

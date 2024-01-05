@@ -68,7 +68,6 @@ public class ConnectionInfo {
 		LOG.info("ConnectionInfo.getConnection: exception= {0}", e.getMessage());
 		File f = getPropertiesFile();
 		LOG.info("ConnectionInfo.getInputStream: {0}", f.getAbsolutePath());
-
 		LOG.info("ConnectionInfo.getConnection: connectionDriver={0}", connectionDriver);
 		LOG.info("ConnectionInfo.getConnection: connectionUrl={0}", connectionUrl);
 		LOG.info("ConnectionInfo.getConnection: connectionUser{0}=", connectionUser);
@@ -77,14 +76,13 @@ public class ConnectionInfo {
 	}
 
 	private void loadPropertiesFromFile() throws ApplicationException {
-		try {
-			InputStream in = getInputStream();
+		try (InputStream in = getInputStream()) {
 			checkNotNull(in, "ConnectionInfo.loadPropertiesFromFile: can not find " + connectionInfoPath);
 
 			Properties properties = new Properties();
 
 			properties.load(in);
-
+			
 			// Lese die Werte aus der Properties-Datei
 			connectionUrl = properties.getProperty("url");
 			connectionDriver = properties.getProperty("driver");

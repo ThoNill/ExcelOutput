@@ -3,17 +3,14 @@
  */
 package org.thonill;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.HashMap;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.thonill.gui.ApplicationDialog;
-import org.thonill.gui.SwingApp;
+import org.thonill.gui.ExcelOutputApplication;
+import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
-import org.thonill.sql.ConnectionInfo;
 
 /**
  * SqlTest provides tests for database connectivity and operations.
@@ -37,20 +34,23 @@ public class ApplicationDialogTest extends SqlTest {
 
 	private void callMain(String sqlFile, String steuerFile, String templateFile, String outputFile) {
 		HashMap<String, String> args = new HashMap<>();
-		addResource(args, "dbDatei", "testDb.properties");
-		addResource(args, "sqlDatei", sqlFile);
-		addResource(args, "steuerDatei", steuerFile);
-		addResource(args, "excelVorlage", templateFile);
-		addOutput(args, "ausgabeDatei", outputFile);
-
-	//	new ApplicationDialog().main(args);
-		new SwingApp().main(new String[] {"a"});
+		addResource(args, StandardKeys.DB_DATEI, "testDb.properties");
+		addResource(args, StandardKeys.SQL_DATEI, sqlFile);
+		addResource(args, StandardKeys.STEUER_DATEI, steuerFile);
+		addResource(args, StandardKeys.EXCEL_VORLAGE, templateFile);
+		addOutput(args, StandardKeys.AUSGABE_DATEI, outputFile);
+		try {
+			new ExcelOutputApplication().main(args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// new ApplicationDialog().main(new String[] {"a"});
 	}
 
 	@Test
 	public void callMain() {
-		callMain("selectRechnungen.sql", null,null, "out1.xls");
-	//	callMain("selectRechnungen.sql", null, "RechnungVorlage.xls", "out1.xls");
+		callMain("selectRechnungen.sql", null, null, "out1.xls");
+		// callMain("selectRechnungen.sql", null, "RechnungVorlage.xls", "out1.xls");
 	}
 
 	private void addResource(HashMap<String, String> args, String key, String fileName) {
