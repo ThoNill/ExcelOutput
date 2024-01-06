@@ -21,10 +21,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 
 	private boolean run = true;
 	Map<String, String> args;
-	/**
-	*
-	*/
-	private static final long serialVersionUID = 1L;
+	
 
 	public ExcelOutputApplication() {
 		super();

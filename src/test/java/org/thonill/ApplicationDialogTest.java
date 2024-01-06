@@ -18,10 +18,7 @@ import org.thonill.logger.LOG;
  */
 
 public class ApplicationDialogTest extends SqlTest {
-	private static final String PASSWORD = "";
-	private static final String USER = "sa";
 	public static final String url = "jdbc:h2:./build/tmp/test/h2test";
-	private static final Random random = new Random();
 
 	@BeforeAll
 	public static void AppTestinit() {

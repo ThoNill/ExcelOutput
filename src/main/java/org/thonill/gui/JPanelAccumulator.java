@@ -22,6 +22,8 @@ import org.thonill.replace.Accumulator;
  */
 
 public class JPanelAccumulator extends JPanel implements Accumulator<FieldDescription> {
+	
+	public static final long serialVersionUID = 1L;
 	private List<FieldDescription> fields;
 	private List<JTextField> textFields;
 
