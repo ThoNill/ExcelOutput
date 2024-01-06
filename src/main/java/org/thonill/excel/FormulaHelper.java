@@ -41,8 +41,9 @@ public class FormulaHelper {
 		checkNotNull(org, "FormulaHelper constructor org is null");
 
 		Sheet sheet = org.getSheet();
-		if (sheet == null || org.getCellType() != CellType.FORMULA || org.isPartOfArrayFormulaGroup())
+		if (sheet == null || org.getCellType() != CellType.FORMULA || org.isPartOfArrayFormulaGroup()) {
 			return;
+		}
 		this.currentRow = org.getRowIndex();
 		this.currentColumn = org.getColumnIndex();
 
@@ -63,21 +64,27 @@ public class FormulaHelper {
 			if (ptg instanceof RefPtgBase) // base class for cell references
 			{
 				RefPtgBase ref = (RefPtgBase) ptg;
-				if (ref.isColRelative())
+				if (ref.isColRelative()) {
 					ref.setColumn(ref.getColumn() + shiftCols);
-				if (ref.isRowRelative())
+				}
+				if (ref.isRowRelative()) {
 					ref.setRow(ref.getRow() + shiftRows);
+				}
 			} else if (ptg instanceof AreaPtg) // base class for range references
 			{
 				AreaPtg ref = (AreaPtg) ptg;
-				if (ref.isFirstColRelative())
+				if (ref.isFirstColRelative()) {
 					ref.setFirstColumn(ref.getFirstColumn() + shiftCols);
-				if (ref.isLastColRelative())
+				}
+				if (ref.isLastColRelative()) {
 					ref.setLastColumn(ref.getLastColumn() + shiftCols);
-				if (ref.isFirstRowRelative())
+				}
+				if (ref.isFirstRowRelative()) {
 					ref.setFirstRow(ref.getFirstRow() + shiftRows);
-				if (ref.isLastRowRelative())
+				}
+				if (ref.isLastRowRelative()) {
 					ref.setLastRow(ref.getLastRow() + shiftRows);
+				}
 			}
 		}
 		String formula = FormulaRenderer.toFormulaString((FormulaRenderingWorkbook) workbookWrapper, ptgs);

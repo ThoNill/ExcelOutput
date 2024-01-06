@@ -13,13 +13,14 @@ import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
 
 /**
- * ExcelOutputApplication provides a dialog for selecting a file and connecting to a
- * database.
+ * ExcelOutputApplication provides a dialog for selecting a file and connecting
+ * to a database.
  */
 
 public class ExcelOutputApplication extends ExcelActiveArguments {
 
 	private boolean run = true;
+	Map<String, String> args;
 	/**
 	*
 	*/
@@ -36,14 +37,19 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 		new ExcelOutputApplication().main(arguments);
 	}
 
-	public void main(Map<String, String> arguments) {
-		this.arguments = arguments;
-		runGui();
+	public void main(Map<String, String> args) {
+		try {
+			this.args = args;
+			clear();
+			runGui();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-
 	public void runGui() {
-		LOG.info("Start");
+
+		LOG.info("Start runGui");
 		checkNotNull(arguments, "ExcelOutputApplication.main arguments is null");
 
 		String connectionFilePath = getFilePath(DB_DATEI);
@@ -109,4 +115,11 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 		run = false;
 	}
 
+	@Override
+	public void clear() {
+		super.clear();
+		for (String key : args.keySet()) {
+			put(key, args.get(key));
+		}
+	}
 }

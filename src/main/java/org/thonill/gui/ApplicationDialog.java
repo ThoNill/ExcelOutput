@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
@@ -45,6 +46,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	private JTextField usernameField;
 	private JPasswordField passwordField;
+	private String outputDir = ".";
 
 	public enum ExportArt {
 		VORLAGE, STEUERDATEI, CSV
@@ -87,8 +89,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	public ApplicationDialog(ActiveArguments arguments) {
 		super("Swing Anwendung");
-		loadProperties();
 		this.arguments = arguments;
+		loadProperties();
+		propertiesToArguments();
 		LOG.info("createTabbedPanel");
 		JTabbedPane tabbedPane = createTabbedPanel();
 
@@ -107,6 +110,42 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		setSize(600, 400);
 		setLocationRelativeTo(null);
 		LOG.info("all created");
+	}
+
+	private void propertiesToArguments() {
+		arguments.clear();
+		Enumeration<Object> enumeration = properties.keys();
+		while (enumeration.hasMoreElements()) {
+			String key = (String) enumeration.nextElement();
+			arguments.put(key, properties.getProperty(key));
+		}
+		String outputDir = properties.getProperty(StandardKeys.AUSGABE_DIR);
+		String outputFileName = properties.getProperty(StandardKeys.AUSGABE_DATEI_NAME);
+		String outputFilePath = new File((outputDir == null) ? "." : outputDir,
+				(outputFileName == null) ? "test.cvs" : outputFileName).getAbsolutePath();
+		arguments.put(StandardKeys.AUSGABE_DATEI, outputFilePath);
+		putVorlageInArguments();
+		if (passwordField != null) {
+			arguments.put(StandardKeys.PASSWORD, passwordField.getText());
+		}
+
+	}
+
+	private void putVorlageInArguments() {
+		String path = properties.getProperty(StandardKeys.VORLAGE);
+		switch (art) {
+		case CSV:
+			break;
+		case STEUERDATEI:
+			arguments.put(StandardKeys.STEUER_DATEI, path);
+			break;
+		case VORLAGE:
+			arguments.put(StandardKeys.EXCEL_VORLAGE, path);
+			break;
+		default:
+			break;
+
+		}
 	}
 
 	private JTabbedPane createTabbedPanel() {
@@ -155,11 +194,14 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				try {
-					putUserInformation(usernameField, passwordField);
-					dynamicFields.setActiveArgument(arguments);
+					properties.put(StandardKeys.USER, usernameField.getText());
+					dynamicFields.storeProperties(properties);
+
+					propertiesToArguments();
 					arguments.run();
 					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
+					e.printStackTrace();
 					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -181,17 +223,17 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		configChooser(directoryChooser, StandardKeys.AUSGABE_DIR);
 
+		outputDir = ".";
 		directoryChooser.addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
 					// Aktionen bei Änderung der ausgewählten Datei
-					File outputDir = (File) evt.getNewValue();
-					if (outputDir != null) {
-						String path = outputDir.getAbsolutePath();
-						arguments.put(StandardKeys.AUSGABE_DIR, path);
-						properties.put(StandardKeys.AUSGABE_DIR, path);
+					File outputDirectory = (File) evt.getNewValue();
+					if (outputDirectory != null) {
+						outputDir = outputDirectory.getAbsolutePath();
+						properties.put(StandardKeys.AUSGABE_DIR, outputDir);
 					}
 				}
 			}
@@ -207,7 +249,6 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String outputFilename = fileNameTextField.getText();
-				arguments.put(StandardKeys.AUSGABE_DATEI, outputFilename);
 				properties.put(StandardKeys.AUSGABE_DATEI_NAME, outputFilename);
 			}
 		});
@@ -243,21 +284,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					if (templateFile != null) {
 						String path = templateFile.getAbsolutePath();
 						properties.put(StandardKeys.VORLAGE, path);
-
-						switch (art) {
-						case CSV:
-							break;
-						case STEUERDATEI:
-							arguments.put(StandardKeys.STEUER_DATEI, path);
-							break;
-						case VORLAGE:
-							arguments.put(StandardKeys.EXCEL_VORLAGE, path);
-							changeFileNameSuffix(templateFileChooser);
-							break;
-						default:
-							break;
-
-						}
+						changeFileNameSuffix();
 					}
 				}
 			}
@@ -269,11 +296,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (templateRadioButton.isSelected()) {
-					art = ExportArt.VORLAGE;
-					properties.put(StandardKeys.EXPORT_ART, ExportArt.VORLAGE.name());
+					setVorlageArt(ExportArt.VORLAGE);
 					templateFileChooser.setVisible(true);
-					arguments.remove(StandardKeys.STEUER_DATEI);
-					changeFileNameSuffix(templateFileChooser);
+					changeFileNameSuffix();
 				}
 			}
 
@@ -285,16 +310,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (configFileRadioButton.isSelected()) {
-					art = ExportArt.STEUERDATEI;
-					properties.put(StandardKeys.EXPORT_ART, ExportArt.STEUERDATEI.name());
+					setVorlageArt(ExportArt.STEUERDATEI);
 					templateFileChooser.setVisible(true);
-					arguments.remove(StandardKeys.EXCEL_VORLAGE);
-					if (templateFileChooser.getSelectedFile() != null) {
-						arguments.put(StandardKeys.STEUER_DATEI,
-								templateFileChooser.getSelectedFile().getAbsolutePath());
-					}
-					String text = fileNameTextField.getText();
-					fileNameTextField.setText(text.replaceAll("\\.csv$", ".xls"));
+					changeFileNameSuffix();
 				}
 			}
 		});
@@ -304,13 +322,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (csvFileRadioButton.isSelected()) {
-					art = ExportArt.CSV;
-					properties.put(StandardKeys.EXPORT_ART, ExportArt.CSV.name());
+					setVorlageArt(ExportArt.CSV);
 					templateFileChooser.setVisible(false);
-					arguments.remove(StandardKeys.STEUER_DATEI);
-					arguments.remove(StandardKeys.EXCEL_VORLAGE);
-					String text = fileNameTextField.getText();
-					fileNameTextField.setText(text.replaceAll("\\.(xls|xlsx)$", ".csv"));
+					changeFileNameSuffix();
 				}
 			}
 		});
@@ -334,6 +348,11 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		return templatePanel;
 	}
 
+	private void setVorlageArt(ExportArt exportArt) {
+		art = exportArt;
+		properties.put(StandardKeys.EXPORT_ART, exportArt.name());
+	}
+
 	private JFileChooser createSqlFileChooser() {
 		LOG.info("createSqlFileChooser");
 		// Tab 2: SQL Datei Auswahl
@@ -349,7 +368,6 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					if (sqlFile != null) {
 
 						String path = sqlFile.getAbsolutePath();
-						arguments.put(StandardKeys.SQL_DATEI, path);
 						properties.put(StandardKeys.SQL_DATEI, path);
 
 						try {
@@ -392,7 +410,6 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			String p = properties.getProperty(key);
 			if (p != null) {
 				LOG.info("Datei {0} ", p);
-				arguments.put(key, p);
 				File f = new File(p);
 				try {
 					fileChooser.setSelectedFile(f);
@@ -456,7 +473,8 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			public void actionPerformed(ActionEvent ae) {
 
 				try {
-					putUserInformation(usernameField, passwordField);
+					arguments.put(StandardKeys.USER, usernameField.getText());
+					arguments.put(StandardKeys.PASSWORD, passwordField.getText());
 					Connection conn = arguments.createConnection();
 					conn.close();
 					msgBox("Connection ist ok", JOptionPane.OK_OPTION);
@@ -477,17 +495,29 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		return loginPanel;
 	}
 
-	private void changeFileNameSuffix(final JFileChooser templateFileChooser) {
+	private void changeFileNameSuffix() {
 		String xls = ".xls";
-		if (templateFileChooser.getSelectedFile() != null) {
-			String template = templateFileChooser.getSelectedFile().getAbsolutePath();
-			arguments.put(StandardKeys.EXCEL_VORLAGE, template);
+		if (properties.containsKey(StandardKeys.VORLAGE)) {
+			String template = properties.getProperty(StandardKeys.VORLAGE);
 			if (template.endsWith(".xlsx")) {
 				xls = ".xlsx";
 			}
 		}
 		String text = fileNameTextField.getText();
-		fileNameTextField.setText(text.replaceAll("\\.(xlsx|xls|csv)$", xls));
+		String modifiedText = text;
+		switch (art) {
+		case CSV:
+			modifiedText = text.replaceAll("\\.(xls|xlsx)$", ".csv");
+			break;
+		case STEUERDATEI:
+		case VORLAGE:
+			modifiedText = text.replaceAll("\\.(xlsx|xls|csv)$", xls);
+			break;
+		default:
+			break;
+		}
+		fileNameTextField.setText(modifiedText);
+		properties.put(StandardKeys.AUSGABE_DATEI_NAME, modifiedText);
 	}
 
 	private void setFieldWithProperty(JTextField field, String key) {
@@ -499,7 +529,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		JPanel dynamicPanel = new JPanel();
 		dynamicPanel.setLayout(new BorderLayout());
 		panel.add(dynamicPanel);
-		// panel.add(Box.createGlue());
+		// panel.add(Box.createGlue()); geht nicht so gut
 	}
 
 	public static void main(String[] args) {
@@ -544,12 +574,6 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 		storeProperties();
 		arguments.stop();
-	}
-
-	private void putUserInformation(final JTextField usernameField, final JPasswordField passwordField) {
-		arguments.put(StandardKeys.USER, usernameField.getText());
-		properties.put(StandardKeys.USER, usernameField.getText());
-		arguments.put(StandardKeys.PASSWORD, passwordField.getText());
 	}
 
 	@Override

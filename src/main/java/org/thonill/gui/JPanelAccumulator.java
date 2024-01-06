@@ -82,7 +82,6 @@ public class JPanelAccumulator extends JPanel implements Accumulator<FieldDescri
 		}
 	}
 
-
 	public void storeProperties(Properties map) {
 		for (JTextField textField : textFields) {
 			String value = textField.getText();
@@ -98,8 +97,6 @@ public class JPanelAccumulator extends JPanel implements Accumulator<FieldDescri
 			textField.setText((value == null) ? "" : value);
 		}
 	}
-
-
 
 	private void setValuesFromHashMap(List<FieldDescription> fields, HashMap<String, String> values) {
 		for (FieldDescription field : fields) {

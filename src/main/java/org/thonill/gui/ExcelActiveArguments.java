@@ -29,8 +29,8 @@ public class ExcelActiveArguments extends StandardKeys implements ActiveArgument
 	}
 
 	@Override
-	public void remove(String key) {
-		this.arguments.remove(key);
+	public void clear() {
+		this.arguments = new HashMap<>();
 
 	}
 
@@ -68,14 +68,13 @@ public class ExcelActiveArguments extends StandardKeys implements ActiveArgument
 
 	private void createFiles(Connection conn) {
 		try {
-			LOG.info();
 			LOG.info("start createFiles");
 			String steuerFilePath = getFilePath(STEUER_DATEI);
-			LOG.info("steuerFilePath = {0}",steuerFilePath);
+			LOG.info("steuerFilePath = {0}", steuerFilePath);
 			String templateFilePath = getFilePath(EXCEL_VORLAGE);
-			LOG.info("templateFilePath = {0}",templateFilePath);
+			LOG.info("templateFilePath = {0}", templateFilePath);
 			String outputFileDir = getFilePath(AUSGABE_DIR);
-			LOG.info("outputFileDir = {0}",outputFileDir);
+			LOG.info("outputFileDir = {0}", outputFileDir);
 
 			if (steuerFilePath != null) {
 				LOG.info("AusgabeSteuerItem.createAusgabeDateien");
@@ -83,14 +82,13 @@ public class ExcelActiveArguments extends StandardKeys implements ActiveArgument
 				AusgabeSteuerItem.createAusgabeDateien(steuerFilePath, conn);
 			} else {
 				String outputFilePath = getOutputFilePath(templateFilePath);
-				LOG.info("outputFilePath = {0} ",outputFilePath);
+				LOG.info("outputFilePath = {0} ", outputFilePath);
 				arguments.put(AUSGABE_DATEI, outputFilePath);
 				AusgabeSteuerItem item = new AusgabeSteuerItem(arguments);
 				LOG.info("item.createAusgabeDatei");
 				LOG.severe();
 				item.createAusgabeDatei(conn);
 			}
-			LOG.info();
 			LOG.info("end createFiles");
 			LOG.severe();
 		} catch (Exception e) {
@@ -109,28 +107,22 @@ public class ExcelActiveArguments extends StandardKeys implements ActiveArgument
 	}
 
 	private String getOutputFilePath(String templateFilePath) {
-		String outputFilePath = concatenateDirAndFilename();
+		String outputFilePath = getArgument(AUSGABE_DATEI, null);
 		if (outputFilePath == null) {
-			outputFilePath = "output" + System.currentTimeMillis();
-			outputFilePath += getPostfix(templateFilePath);
+			outputFilePath = concatenateDirAndFilename(templateFilePath);
 		}
 		return outputFilePath;
 	}
 
-	private String concatenateDirAndFilename() {
-		String outputFileDir = getArgument(AUSGABE_DIR, null);
-		LOG.info("outputFileDir = {0}",outputFileDir);
-		String outputFile = getArgument(AUSGABE_DATEI, null);
-		LOG.info("outputFile = {0}",outputFile);
-		String outputFilePath = null;
-		if (outputFile != null && outputFileDir != null) {
-			if (outputFile.startsWith(outputFileDir)) {
-				outputFilePath = outputFile;
-			} else {
-				outputFilePath = new File(outputFileDir, outputFile).getAbsolutePath();
-			}
-		}
-		LOG.info("outputFilePath = {0}",outputFilePath);
+	private String concatenateDirAndFilename(String templateFilePath) {
+		LOG.info("concatenateDirAndFilename");
+		String outputDir = getArgument(AUSGABE_DIR, ".");
+		LOG.info("outputFileDir = {0}", outputDir);
+		String defaultFileName = "output" + System.currentTimeMillis() + getPostfix(templateFilePath);
+		String outputFileName = getArgument(AUSGABE_DATEI_NAME, defaultFileName);
+		LOG.info("outputFileName = {0}", outputFileName);
+		String outputFilePath = new File(outputDir, outputFileName).getAbsolutePath();
+		LOG.info("outputFilePath = {0}", outputFilePath);
 		return outputFilePath;
 	}
 

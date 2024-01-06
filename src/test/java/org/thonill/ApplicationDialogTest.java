@@ -35,8 +35,6 @@ public class ApplicationDialogTest extends SqlTest {
 		}
 	}
 
-
-
 	private void callMain(String sqlFile, String steuerFile, String templateFile, String outputFile) {
 		HashMap<String, String> args = new HashMap<>();
 		addResource(args, StandardKeys.DB_DATEI, "testDb.properties");
@@ -77,4 +75,5 @@ public class ApplicationDialogTest extends SqlTest {
 	private String getOutputPath(String fileName) {
 		return "build/tmp/test" + fileName;
 	}
+
 }

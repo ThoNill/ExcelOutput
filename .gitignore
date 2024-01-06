@@ -4,3 +4,7 @@
 /.scannerwork
 /.gradle/
 /ExcelExport.properties
+/caches/
+/daemon/
+/native/
+/wrapper/

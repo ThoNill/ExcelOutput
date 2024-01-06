@@ -30,4 +30,9 @@ public class ApplicationException extends RuntimeException {
 
 	}
 
+	public void printSTackTrace() {
+		if (getCause() != null) {
+			getCause().printStackTrace();
+		}
+	}
 }

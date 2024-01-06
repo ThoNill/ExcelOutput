@@ -35,8 +35,7 @@ public class AusgabeSteuerItem extends StandardKeys {
 		this.sqlDatei = getValue(daten, SQL_DATEI, true);
 		checkFileExists(sqlDatei, "AusgabeSteuerItem.constructor", SQL_DATEI);
 
-		LOG.info();
-		LOG.info(ausgabeDatei);
+		LOG.info("outputFile: {0}", ausgabeDatei);
 		LOG.severe();
 		boolean b = !ausgabeDatei.endsWith("csv");
 		if (b) {

@@ -54,9 +54,6 @@ public class SqlTest {
 		}
 	}
 
-
-
-
 	public static void fillDb() throws SQLException {
 
 		// Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
