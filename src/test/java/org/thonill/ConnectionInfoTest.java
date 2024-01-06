@@ -28,10 +28,27 @@ public class ConnectionInfoTest extends SqlTest {
 		try {
 			ConnectionInfo info = new ConnectionInfo("sa", "", "src\\test\\resources\\testDb.properties");
 			try (Connection conn = info.createConnection()) {
-				assertNull(conn);
+				assert(conn != null);
 			} catch (Exception e) {
 				LOG.severe(e.getLocalizedMessage());
 				fail("connection to db failed");
+			}
+		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
+			fail("connection to db failed");
+		}
+
+	}
+	
+	@Test
+	void testGetWrongUserConnection() {
+		try {
+			ConnectionInfo info = new ConnectionInfo("user", "", "src\\test\\resources\\testDb.properties");
+			try (Connection conn = info.createConnection()) {
+				assert(conn != null);
+				fail("connection to db does not faile");
+			} catch (Exception e) {
+				LOG.severe(e.getLocalizedMessage());
 			}
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
