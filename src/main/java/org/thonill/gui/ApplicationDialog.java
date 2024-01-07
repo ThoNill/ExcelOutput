@@ -285,6 +285,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			try (InputStream in = new FileInputStream(f)) {
 				properties.load(in);
 			} catch (Exception e) {
+				LOG.severe(e.getLocalizedMessage());
 				msgBox("Fehler beim laden der Properties Datei", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
@@ -301,6 +302,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		try (OutputStream out = new FileOutputStream(f)) {
 			properties.store(out, "ExcelOutput");
 		} catch (Exception e) {
+			LOG.severe(e.getLocalizedMessage());
 			msgBox("Fehler beim speichern der Properties Datei", JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -396,8 +398,8 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					arguments.run();
 					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
-					LOG.severe(e.getLocalizedMessage());
 					e.printStackTrace();
+					LOG.severe(e.getLocalizedMessage());
 					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -480,6 +482,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					conn.close();
 					msgBox("Connection ist ok", JOptionPane.OK_OPTION);
 				} catch (Exception e) {
+					LOG.severe(e.getLocalizedMessage());
 					msgBox("Es ist ein Verbindungsfehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -543,6 +546,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				LOG.severe(e.getLocalizedMessage());
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

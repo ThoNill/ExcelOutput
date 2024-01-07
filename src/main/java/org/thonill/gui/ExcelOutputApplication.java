@@ -81,6 +81,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				LOG.severe(e.getLocalizedMessage());
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
