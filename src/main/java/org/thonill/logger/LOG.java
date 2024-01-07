@@ -28,7 +28,6 @@ public class LOG {
 		if (msg == null) {
 			msg = "Message is null";
 		}
-		// System.out.println(MessageFormat.format(msg, args));
 		if (logger.isLoggable(level)) {
 			if (args == null || args.length == 0) {
 				logger.log(level, msg);

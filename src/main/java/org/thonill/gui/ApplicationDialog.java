@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
-import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
@@ -40,58 +39,80 @@ import org.thonill.replace.VariableExtractor;
 
 public class ApplicationDialog extends JFrame implements WindowListener {
 
+	public enum ExportArt {
+		VORLAGE, STEUERDATEI, CSV
+	}
+
 	private static final long serialVersionUID = 1L;
 	private boolean run = true;
 	private ActiveArguments arguments;
 
 	private JTextField usernameField;
 	private JPasswordField passwordField;
-	private String outputDir = ".";
+	private JTextField fileNameTextField;
 
-	public enum ExportArt {
-		VORLAGE, STEUERDATEI, CSV
-	}
+	private JFileChooser directoryChooser;
+	private JFileChooser templateFileChooser;
+	private JFileChooser sqlFileChooser;
 
-	private ExportArt art = ExportArt.VORLAGE;
 	private JPanel dynamicPanel;
 	private JPanelAccumulator dynamicFields;
 	private Properties properties = new Properties();
-	private JTextField fileNameTextField;
 
-	private void loadProperties() {
-		File f = new File("./ExcelExport.properties");
-		LOG.info("Read Properties from: {0} ", f.getAbsolutePath());
-		if (f.exists()) {
-			try (InputStream in = new FileInputStream(f)) {
-				properties.load(in);
-			} catch (Exception e) {
-				msgBox("Fehler beim laden der Properties Datei", JOptionPane.ERROR_MESSAGE);
-			}
-		} else {
-			properties = new Properties();
-		}
-	}
+	private JRadioButton templateRadioButton;
 
-	private void storeProperties() {
-		properties.put(StandardKeys.USER, usernameField.getText());
-		properties.put(StandardKeys.AUSGABE_DATEI_NAME, fileNameTextField.getText());
-		dynamicFields.storeProperties(properties);
+	private JRadioButton configFileRadioButton;
 
-		File f = new File("./ExcelExport.properties");
-		LOG.info("Write Properties to: {0} ", f.getAbsolutePath());
-		try (OutputStream out = new FileOutputStream(f)) {
-			properties.store(out, "ExcelOutput");
-		} catch (Exception e) {
-			msgBox("Fehler beim speichern der Properties Datei", JOptionPane.ERROR_MESSAGE);
-		}
-
-	}
+	private JRadioButton csvFileRadioButton;
 
 	public ApplicationDialog(ActiveArguments arguments) {
 		super("Swing Anwendung");
 		this.arguments = arguments;
+
+		initFields();
 		loadProperties();
-		propertiesToArguments();
+
+		layoutDialog();
+		addActions();
+
+		LOG.info("all created");
+	}
+
+	private void initFields() {
+
+		directoryChooser = new JFileChooser();
+		directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		configChooser(directoryChooser, StandardKeys.AUSGABE_DIR);
+
+		templateRadioButton = new JRadioButton("Vorlage", true);
+		configFileRadioButton = new JRadioButton("Steuerdatei", false);
+		csvFileRadioButton = new JRadioButton("CSV Datei", false);
+
+		templateFileChooser = new JFileChooser();
+		templateFileChooser.setFileFilter(new FileNameExtensionFilter("Excel Dateien", "xls", "xlsx"));
+		configChooser(templateFileChooser, StandardKeys.VORLAGE);
+		templateFileChooser.setVisible(!isRadioSelected(ExportArt.CSV, false));
+
+		fileNameTextField = new JTextField(20);
+		setFieldWithProperty(fileNameTextField, StandardKeys.AUSGABE_DATEI_NAME);
+
+		sqlFileChooser = new JFileChooser();
+		sqlFileChooser.setFileFilter(new FileNameExtensionFilter("Sql Dateien", "sql"));
+		configChooser(sqlFileChooser, StandardKeys.SQL_DATEI);
+
+		passwordField = new JPasswordField(20);
+		passwordField.setText("");
+
+		usernameField = new JTextField(20);
+		setFieldWithProperty(usernameField, StandardKeys.USER);
+
+		dynamicPanel = new JPanel();
+		dynamicPanel.setLayout(new GridLayout(1, 1, 5, 5));
+		dynamicFields = null;
+
+	}
+
+	private void layoutDialog() {
 		LOG.info("createTabbedPanel");
 		JTabbedPane tabbedPane = createTabbedPanel();
 
@@ -103,231 +124,33 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		add(tabbedPane, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 
-		addWindowListener(this);
-
 		// Grundlegende Einstellungen für die Anwendung
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setSize(600, 400);
 		setLocationRelativeTo(null);
-		LOG.info("all created");
-	}
-
-	private void propertiesToArguments() {
-		arguments.clear();
-		Enumeration<Object> enumeration = properties.keys();
-		while (enumeration.hasMoreElements()) {
-			String key = (String) enumeration.nextElement();
-			arguments.put(key, properties.getProperty(key));
-		}
-		String outputDir = properties.getProperty(StandardKeys.AUSGABE_DIR);
-		String outputFileName = properties.getProperty(StandardKeys.AUSGABE_DATEI_NAME);
-		String outputFilePath = new File((outputDir == null) ? "." : outputDir,
-				(outputFileName == null) ? "test.cvs" : outputFileName).getAbsolutePath();
-		arguments.put(StandardKeys.AUSGABE_DATEI, outputFilePath);
-		putVorlageInArguments();
-		if (passwordField != null) {
-			arguments.put(StandardKeys.PASSWORD, passwordField.getText());
-		}
-
-	}
-
-	private void putVorlageInArguments() {
-		String path = properties.getProperty(StandardKeys.VORLAGE);
-		switch (art) {
-		case CSV:
-			break;
-		case STEUERDATEI:
-			arguments.put(StandardKeys.STEUER_DATEI, path);
-			break;
-		case VORLAGE:
-			arguments.put(StandardKeys.EXCEL_VORLAGE, path);
-			break;
-		default:
-			break;
-
-		}
 	}
 
 	private JTabbedPane createTabbedPanel() {
 		JTabbedPane tabbedPane = new JTabbedPane();
 		// Tab 5: Dynamisch veränderbares Panel
 		// muss früh erzeugt weden, wegen PUpdates
-		JPanel dynamicParent = creatDynamicPanel();
 
-		JPanel loginPanel = createLoginPanel();
-		tabbedPane.addTab("Login", loginPanel);
+		tabbedPane.addTab("Login", createLoginPanel());
 
-		JFileChooser sqlFileChooser = createSqlFileChooser();
-		tabbedPane.addTab("Sql Datei Auswahl", sqlFileChooser);
+		tabbedPane.addTab("Sql Datei Auswahl", createSqlFileChooser());
 
-		JPanel templatePanel = createTemplatePanel();
-		tabbedPane.addTab("Vorlagen", templatePanel);
+		tabbedPane.addTab("Vorlagen", createTemplatePanel());
 
-		JPanel fileSelectionPanel = createOutputFileChooser();
-		tabbedPane.addTab("Ausgabedatei", fileSelectionPanel);
+		tabbedPane.addTab("Ausgabedatei", createOutputFileChooser());
 
-		tabbedPane.addTab("Felder aus SqlDatei", dynamicParent);
+		tabbedPane.addTab("Felder aus SqlDatei", createDynamicPanel());
+
 		return tabbedPane;
-	}
-
-	private JPanel creatDynamicPanel() {
-		dynamicPanel = new JPanel();
-		dynamicPanel.setLayout(new GridLayout(1, 1, 5, 5));
-
-		JPanel dynamicParent = new JPanel();
-		dynamicParent.setLayout(new BoxLayout(dynamicParent, BoxLayout.Y_AXIS));
-		dynamicParent.add(dynamicPanel);
-		addGlue(dynamicParent);
-		return dynamicParent;
-	}
-
-	private JPanel createButtonPanel() {
-		// Button Panel am unteren Rand
-		JPanel buttonPanel = new JPanel();
-		JButton createButton = new JButton("Erstellen");
-		JButton exitButton = new JButton("Beenden");
-		buttonPanel.add(createButton);
-		buttonPanel.add(exitButton);
-
-		createButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-				try {
-					properties.put(StandardKeys.USER, usernameField.getText());
-					dynamicFields.storeProperties(properties);
-
-					propertiesToArguments();
-					arguments.run();
-					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
-				} catch (Exception e) {
-					e.printStackTrace();
-					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-
-		exitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				close();
-			}
-		});
-		return buttonPanel;
-	}
-
-	private JPanel createOutputFileChooser() {
-		LOG.info("createOutputFileChooser");
-		// Tab 4: Dateiauswahl mit Verzeichnis und Dateiname
-		JFileChooser directoryChooser = new JFileChooser();
-		directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		configChooser(directoryChooser, StandardKeys.AUSGABE_DIR);
-
-		outputDir = ".";
-		directoryChooser.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-					// Aktionen bei Änderung der ausgewählten Datei
-					File outputDirectory = (File) evt.getNewValue();
-					if (outputDirectory != null) {
-						outputDir = outputDirectory.getAbsolutePath();
-						properties.put(StandardKeys.AUSGABE_DIR, outputDir);
-					}
-				}
-			}
-		});
-
-		JPanel fieldPanel = new JPanel();
-		fieldPanel.setLayout(new GridLayout(1, 3, 5, 5));
-		fileNameTextField = new JTextField(20);
-		setFieldWithProperty(fileNameTextField, StandardKeys.AUSGABE_DATEI_NAME);
-
-		fileNameTextField.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String outputFilename = fileNameTextField.getText();
-				properties.put(StandardKeys.AUSGABE_DATEI_NAME, outputFilename);
-			}
-		});
-
-		fieldPanel.add(new JLabel(" Dateiname:"));
-		fieldPanel.add(fileNameTextField);
-		addGlue(fieldPanel);
-
-		JPanel fileSelectionPanel = new JPanel();
-		fileSelectionPanel.add(fieldPanel);
-		fileSelectionPanel.setLayout(new BoxLayout(fileSelectionPanel, BoxLayout.Y_AXIS));
-		fileSelectionPanel.add(directoryChooser);
-		addGlue(fileSelectionPanel);
-		return fileSelectionPanel;
 	}
 
 	private JPanel createTemplatePanel() {
 		// Tab 3: Vorlagen
 		LOG.info("createTemplatePanel");
-
-		final JFileChooser templateFileChooser = new JFileChooser();
-		templateFileChooser.setFileFilter(new FileNameExtensionFilter("Excel Dateien", "xls", "xlsx"));
-		configChooser(templateFileChooser, StandardKeys.VORLAGE);
-		templateFileChooser.setVisible(!isRadioSelected(ExportArt.CSV, false));
-
-		templateFileChooser.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-					// Aktionen bei Änderung der ausgewählten Datei
-					File templateFile = (File) evt.getNewValue();
-					if (templateFile != null) {
-						String path = templateFile.getAbsolutePath();
-						properties.put(StandardKeys.VORLAGE, path);
-						changeFileNameSuffix();
-					}
-				}
-			}
-		});
-
-		JRadioButton templateRadioButton = new JRadioButton("Vorlage", isRadioSelected(ExportArt.VORLAGE, true));
-
-		templateRadioButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (templateRadioButton.isSelected()) {
-					setVorlageArt(ExportArt.VORLAGE);
-					templateFileChooser.setVisible(true);
-					changeFileNameSuffix();
-				}
-			}
-
-		});
-
-		JRadioButton configFileRadioButton = new JRadioButton("Steuerdatei",
-				isRadioSelected(ExportArt.STEUERDATEI, false));
-		configFileRadioButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (configFileRadioButton.isSelected()) {
-					setVorlageArt(ExportArt.STEUERDATEI);
-					templateFileChooser.setVisible(true);
-					changeFileNameSuffix();
-				}
-			}
-		});
-
-		JRadioButton csvFileRadioButton = new JRadioButton("CSV Datei", isRadioSelected(ExportArt.CSV, false));
-		csvFileRadioButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (csvFileRadioButton.isSelected()) {
-					setVorlageArt(ExportArt.CSV);
-					templateFileChooser.setVisible(false);
-					changeFileNameSuffix();
-				}
-			}
-		});
 
 		ButtonGroup radioGroup = new ButtonGroup();
 		radioGroup.add(templateRadioButton);
@@ -345,82 +168,56 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		templatePanel.add(radioGroupPanel);
 		templatePanel.add(templateFileChooser);
 
+		addActionVorlage(templateRadioButton);
+		addActionSteuerdatei(configFileRadioButton);
+		addActionCvs(csvFileRadioButton);
+
 		return templatePanel;
 	}
 
-	private void setVorlageArt(ExportArt exportArt) {
-		art = exportArt;
-		properties.put(StandardKeys.EXPORT_ART, exportArt.name());
+	private JPanel createOutputFileChooser() {
+		LOG.info("createOutputFileChooser");
+		// Tab 4: Dateiauswahl mit Verzeichnis und Dateiname
+
+		JPanel fieldPanel = new JPanel();
+		fieldPanel.setLayout(new GridLayout(1, 3, 5, 5));
+
+		fieldPanel.add(new JLabel(" Dateiname:"));
+		fieldPanel.add(fileNameTextField);
+		addGlue(fieldPanel);
+
+		JPanel fileSelectionPanel = new JPanel();
+		fileSelectionPanel.add(fieldPanel);
+		fileSelectionPanel.setLayout(new BoxLayout(fileSelectionPanel, BoxLayout.Y_AXIS));
+		fileSelectionPanel.add(directoryChooser);
+		addGlue(fileSelectionPanel);
+		return fileSelectionPanel;
+	}
+
+	private JPanel createButtonPanel() {
+		// Button Panel am unteren Rand
+		JPanel buttonPanel = new JPanel();
+		JButton createButton = new JButton("Erstellen");
+		JButton exitButton = new JButton("Beenden");
+		buttonPanel.add(createButton);
+		buttonPanel.add(exitButton);
+
+		addActionRunButton(createButton);
+		addActionQuitButton(exitButton);
+
+		return buttonPanel;
+	}
+
+	private JPanel createDynamicPanel() {
+		JPanel dynamicParent = new JPanel();
+		dynamicParent.setLayout(new BoxLayout(dynamicParent, BoxLayout.Y_AXIS));
+		dynamicParent.add(dynamicPanel);
+		addGlue(dynamicParent);
+		return dynamicParent;
 	}
 
 	private JFileChooser createSqlFileChooser() {
-		LOG.info("createSqlFileChooser");
-		// Tab 2: SQL Datei Auswahl
-		JFileChooser sqlFileChooser = new JFileChooser();
-		sqlFileChooser.setFileFilter(new FileNameExtensionFilter("Sql Dateien", "sql"));
-		sqlFileChooser.addPropertyChangeListener(new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-					// Aktionen bei Änderung der ausgewählten Datei
-					File sqlFile = (File) evt.getNewValue();
-					if (sqlFile != null) {
-
-						String path = sqlFile.getAbsolutePath();
-						properties.put(StandardKeys.SQL_DATEI, path);
-
-						try {
-							if (dynamicFields != null) {
-								dynamicFields.storeProperties(properties);
-								dynamicPanel.remove(dynamicFields);
-							}
-							dynamicFields = new JPanelAccumulator(
-									VariableExtractor.extractFieldDescriptionsFromFile(sqlFile.getAbsolutePath()));
-
-							dynamicFields.loadProperties(properties);
-							dynamicPanel.add(dynamicFields);
-							dynamicPanel.repaint();
-						} catch (IOException e) {
-							LOG.severe(e.getLocalizedMessage());
-						}
-					}
-
-				}
-			}
-		});
-		configChooser(sqlFileChooser, StandardKeys.SQL_DATEI);
-
 		return sqlFileChooser;
-	}
-
-	private boolean isRadioSelected(ExportArt exportArt, boolean defaultValue) {
-		String a = properties.getProperty(StandardKeys.EXPORT_ART);
-		return (a != null) ? exportArt.name().equals(a) : defaultValue;
-	}
-
-	private void configChooser(JFileChooser fileChooser, String key) {
-		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setDialogTitle("Datei auswählen");
-		fileChooser.setApproveButtonText("Auswählen");
-		fileChooser.setApproveButtonToolTipText("Auswählen");
-		fileChooser.setApproveButtonMnemonic('A');
-		LOG.info("Setze Chooser für Key {0} ", key);
-		if (properties.containsKey(key)) {
-			String p = properties.getProperty(key);
-			if (p != null) {
-				LOG.info("Datei {0} ", p);
-				File f = new File(p);
-				try {
-					fileChooser.setSelectedFile(f);
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw e;
-				}
-				LOG.info("Chooser gesetzt für Key {0} ", key);
-			}
-		}
-
 	}
 
 	private JPanel createLoginPanel() {
@@ -433,31 +230,10 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		// Labels and TextFields for Username and Password
 		fieldPanel.add(new JLabel("Benutzername:"));
 
-		usernameField = new JTextField(20);
-		setFieldWithProperty(usernameField, StandardKeys.USER);
-
-		usernameField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				arguments.put(StandardKeys.USER, usernameField.getText());
-				properties.put(StandardKeys.USER, usernameField.getText());
-			}
-		});
-
 		fieldPanel.add(usernameField);
 		addGlue(fieldPanel);
 
 		fieldPanel.add(new JLabel("Passwort:"));
-
-		passwordField = new JPasswordField(20);
-		passwordField.setText("");
-
-		passwordField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				arguments.put(StandardKeys.PASSWORD, passwordField.getText());
-			}
-		});
 
 		fieldPanel.add(passwordField);
 		addGlue(fieldPanel);
@@ -468,22 +244,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		addGlue(loginPanel);
 
 		JButton testConnectionButton = new JButton("Verbindung testen");
-		testConnectionButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ae) {
-
-				try {
-					arguments.put(StandardKeys.USER, usernameField.getText());
-					arguments.put(StandardKeys.PASSWORD, passwordField.getText());
-					Connection conn = arguments.createConnection();
-					conn.close();
-					msgBox("Connection ist ok", JOptionPane.OK_OPTION);
-				} catch (Exception e) {
-					msgBox("Es ist ein Verbindungsfehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-
-		});
+		addActionTestConnection(testConnectionButton);
 
 		JPanel buttonPanel = new JPanel();
 		addGlue(buttonPanel);
@@ -495,16 +256,248 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		return loginPanel;
 	}
 
+	private boolean isRadioSelected(ExportArt exportArt, boolean defaultValue) {
+		ExportArt art = getExportArt();
+		return (art != null) ? exportArt.equals(art) : defaultValue;
+	}
+
+	private void configChooser(JFileChooser fileChooser, String key) {
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setDialogTitle("Datei auswählen");
+		fileChooser.setControlButtonsAreShown(false);
+		LOG.info("Setze Chooser für Key {0} ", key);
+		if (properties.containsKey(key)) {
+			String p = properties.getProperty(key);
+			if (p != null) {
+				LOG.info("Datei {0} ", p);
+				File f = new File(p);
+				fileChooser.setSelectedFile(f);
+				LOG.info("Chooser gesetzt für Key {0} ", key);
+			}
+		}
+
+	}
+
+	private void loadProperties() {
+		File f = new File("./ExcelExport.properties");
+		LOG.info("Read Properties from: {0} ", f.getAbsolutePath());
+		if (f.exists()) {
+			try (InputStream in = new FileInputStream(f)) {
+				properties.load(in);
+			} catch (Exception e) {
+				msgBox("Fehler beim laden der Properties Datei", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			properties = new Properties();
+		}
+		loadProperties(properties);
+	}
+
+	private void storeProperties() {
+		storeProperties(properties);
+
+		File f = new File("./ExcelExport.properties");
+		LOG.info("Write Properties to: {0} ", f.getAbsolutePath());
+		try (OutputStream out = new FileOutputStream(f)) {
+			properties.store(out, "ExcelOutput");
+		} catch (Exception e) {
+			msgBox("Fehler beim speichern der Properties Datei", JOptionPane.ERROR_MESSAGE);
+		}
+
+	}
+
+	private void storeProperties(Properties properties) {
+
+		properties.put(StandardKeys.USER, getUser());
+		properties.put(StandardKeys.AUSGABE_DATEI_NAME, getFileName());
+		properties.put(StandardKeys.AUSGABE_DIR, getOutputDir());
+		properties.put(StandardKeys.SQL_DATEI, getSqlFile());
+		properties.put(StandardKeys.VORLAGE, getTemplateFile());
+		properties.put(StandardKeys.EXPORT_ART, getExportArt().name());
+		dynamicFields.storeProperties(properties);
+	}
+
+	private void loadProperties(Properties properties) {
+		setUser((String) properties.get(StandardKeys.USER));
+		setFileName((String) properties.get(StandardKeys.AUSGABE_DATEI_NAME));
+		setOutputDir((String) properties.get(StandardKeys.AUSGABE_DIR));
+		setSqlFile((String) properties.get(StandardKeys.SQL_DATEI));
+		setTemplateFile((String) properties.get(StandardKeys.VORLAGE));
+		setExportArt(getExportArt((String) properties.get(StandardKeys.EXPORT_ART)));
+		updateDynamicFields();
+
+	}
+
+	private void storeArguments() {
+		arguments.clear();
+
+		arguments.put(StandardKeys.USER, getUser());
+		arguments.put(StandardKeys.PASSWORD, getPassword());
+		arguments.put(StandardKeys.SQL_DATEI, getSqlFile());
+		arguments.put(StandardKeys.VORLAGE, getTemplateFile());
+		dynamicFields.storeArguments(arguments);
+
+		putOutputFileNames();
+
+		putVorlageInArguments();
+
+	}
+
+	private void putOutputFileNames() {
+		String outputDir = getOutputDir();
+		String outputFileName = getFileName();
+		arguments.put(StandardKeys.AUSGABE_DATEI_NAME, outputFileName);
+		arguments.put(StandardKeys.AUSGABE_DIR, outputDir);
+		String outputFilePath = new File((outputDir == null) ? "." : outputDir,
+				(outputFileName == null) ? "test.cvs" : outputFileName).getAbsolutePath();
+		arguments.put(StandardKeys.AUSGABE_DATEI, outputFilePath);
+	}
+
+	private void putVorlageInArguments() {
+		ExportArt art = getExportArt();
+		String path = getTemplateFile();
+		switch (art) {
+		case CSV:
+			break;
+		case STEUERDATEI:
+			arguments.put(StandardKeys.STEUER_DATEI, path);
+			break;
+		case VORLAGE:
+			arguments.put(StandardKeys.EXCEL_VORLAGE, path);
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	public void addActions() {
+		addActionsSqlFile();
+		addActionTemplateFile();
+		addWindowListener(this);
+	}
+
+	private void addActionQuitButton(JButton exitButton) {
+		exitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
+	}
+
+	private void addActionRunButton(JButton createButton) {
+		createButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					storeArguments();
+					arguments.run();
+					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
+				} catch (Exception e) {
+					LOG.severe(e.getLocalizedMessage());
+					e.printStackTrace();
+					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+	}
+
+	private void addActionTemplateFile() {
+		templateFileChooser.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+					// Aktionen bei Änderung der ausgewählten Datei
+					LOG.info("Event: {0}", evt.toString());
+					changeFileNameSuffix();
+
+				}
+			}
+		});
+	}
+
+	private void addActionCvs(JRadioButton csvFileRadioButton) {
+		csvFileRadioButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (csvFileRadioButton.isSelected()) {
+					templateFileChooser.setVisible(false);
+					changeFileNameSuffix();
+				}
+			}
+		});
+	}
+
+	private void addActionSteuerdatei(JRadioButton configFileRadioButton) {
+		configFileRadioButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (configFileRadioButton.isSelected()) {
+					templateFileChooser.setVisible(true);
+					changeFileNameSuffix();
+				}
+			}
+		});
+	}
+
+	private void addActionVorlage(JRadioButton templateRadioButton) {
+		templateRadioButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (templateRadioButton.isSelected()) {
+					templateFileChooser.setVisible(true);
+					changeFileNameSuffix();
+				}
+			}
+
+		});
+	}
+
+	private void addActionsSqlFile() {
+		sqlFileChooser.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+					// Aktionen bei Änderung der ausgewählten Datei
+					updateDynamicFields();
+				}
+			}
+		});
+	}
+
+	private void addActionTestConnection(JButton testConnectionButton) {
+		testConnectionButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+
+				try {
+					arguments.put(StandardKeys.USER, getUser());
+					arguments.put(StandardKeys.PASSWORD, getPassword());
+					Connection conn = arguments.createConnection();
+					conn.close();
+					msgBox("Connection ist ok", JOptionPane.OK_OPTION);
+				} catch (Exception e) {
+					msgBox("Es ist ein Verbindungsfehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+
+		});
+	}
+
 	private void changeFileNameSuffix() {
 		String xls = ".xls";
-		if (properties.containsKey(StandardKeys.VORLAGE)) {
-			String template = properties.getProperty(StandardKeys.VORLAGE);
-			if (template.endsWith(".xlsx")) {
+		String templateFile = getTemplateFile();
+		if (templateFile != null) {
+			if (templateFile.endsWith(".xlsx")) {
 				xls = ".xlsx";
 			}
 		}
-		String text = fileNameTextField.getText();
+		String text = getFileName();
 		String modifiedText = text;
+		ExportArt art = getExportArt();
 		switch (art) {
 		case CSV:
 			modifiedText = text.replaceAll("\\.(xls|xlsx)$", ".csv");
@@ -516,7 +509,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		default:
 			break;
 		}
-		fileNameTextField.setText(modifiedText);
+		setFileName(modifiedText);
 		properties.put(StandardKeys.AUSGABE_DATEI_NAME, modifiedText);
 	}
 
@@ -549,7 +542,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.severe(e.getLocalizedMessage());
 			}
 		}
 	}
@@ -597,6 +590,135 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {
+	}
+
+	private void updateDynamicFields() {
+		String sqlFile = getSqlFile();
+
+		if (dynamicFields != null) {
+			dynamicFields.storeProperties(properties);
+			dynamicPanel.remove(dynamicFields);
+			dynamicFields = null;
+		}
+
+		if (sqlFile != null) {
+			properties.put(StandardKeys.SQL_DATEI, sqlFile);
+
+			try {
+				dynamicFields = new JPanelAccumulator(VariableExtractor.extractFieldDescriptionsFromFile(sqlFile));
+
+				dynamicFields.loadProperties(properties);
+				dynamicPanel.add(dynamicFields);
+				dynamicPanel.repaint();
+			} catch (IOException e) {
+				LOG.severe(e.getLocalizedMessage());
+			}
+		}
+	}
+
+	private String getFileName() {
+		return fileNameTextField.getText();
+	}
+
+	private void setFileName(String modifiedText) {
+		fileNameTextField.setText(modifiedText);
+	}
+
+	private String getUser() {
+		return usernameField.getText();
+	}
+
+	private void setUser(String user) {
+		usernameField.setText(null2leer(user));
+	}
+
+	private String null2leer(String text) {
+		return (text == null) ? "" : text;
+	}
+
+	private File null2CurrentDir(String path) {
+		return new File((path == null) ? "." : path);
+	}
+
+	private String getPassword() {
+		return passwordField.getText();
+	}
+
+	private String getOutputDir() {
+		File f = directoryChooser.getSelectedFile();
+		if (f != null) {
+			return f.getAbsolutePath();
+		}
+		return ".";
+	}
+
+	private void setOutputDir(String path) {
+		directoryChooser.setSelectedFile(null2CurrentDir(path));
+	}
+
+	private String getTemplateFile() {
+		File f = templateFileChooser.getSelectedFile();
+		if (f != null) {
+			return f.getAbsolutePath();
+		}
+		return null;
+	}
+
+	private void setTemplateFile(String path) {
+		if (path != null) {
+			templateFileChooser.setSelectedFile(new File(path));
+		}
+	}
+
+	private String getSqlFile() {
+		File f = sqlFileChooser.getSelectedFile();
+		if (f != null) {
+			return f.getAbsolutePath();
+		}
+		return null;
+	}
+
+	private void setSqlFile(String path) {
+		if (path != null) {
+			sqlFileChooser.setSelectedFile(new File(path));
+		}
+	}
+
+	public void setExportArt(ExportArt exportArt) {
+		switch (exportArt) {
+		case CSV:
+			csvFileRadioButton.setSelected(true);
+			break;
+		case STEUERDATEI:
+			configFileRadioButton.setSelected(true);
+			break;
+		case VORLAGE:
+			templateRadioButton.setSelected(true);
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	public ExportArt getExportArt() {
+		if (csvFileRadioButton.isSelected())
+			return ExportArt.CSV;
+		if (configFileRadioButton.isSelected())
+			return ExportArt.STEUERDATEI;
+		if (templateRadioButton.isSelected())
+			return ExportArt.VORLAGE;
+		return ExportArt.CSV;
+	}
+
+	public ExportArt getExportArt(String name) {
+		if (ExportArt.CSV.name().equals(name))
+			return ExportArt.CSV;
+		if (ExportArt.STEUERDATEI.name().equals(name))
+			return ExportArt.STEUERDATEI;
+		if (ExportArt.VORLAGE.name().equals(name))
+			return ExportArt.VORLAGE;
+		return ExportArt.CSV;
 	}
 
 }

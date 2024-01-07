@@ -21,7 +21,6 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 
 	private boolean run = true;
 	Map<String, String> args;
-	
 
 	public ExcelOutputApplication() {
 		super();
@@ -29,19 +28,19 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 	}
 
 	public static void main(String[] args) {
-		Map<String, String> arguments = parseArgs(args);
-
-		new ExcelOutputApplication().main(arguments);
+		try {
+			Map<String, String> arguments = parseArgs(args);
+			new ExcelOutputApplication().main(arguments);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.severe(e.getLocalizedMessage());
+		}
 	}
 
 	public void main(Map<String, String> args) {
-		try {
-			this.args = args;
-			clear();
-			runGui();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.args = args;
+		clear();
+		runGui();
 	}
 
 	public void runGui() {
@@ -81,7 +80,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				LOG.severe(e.getLocalizedMessage());
 			}
 		}
 	}

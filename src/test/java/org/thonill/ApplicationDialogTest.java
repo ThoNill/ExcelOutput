@@ -4,7 +4,6 @@
 package org.thonill;
 
 import java.util.HashMap;
-import java.util.Random;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -39,12 +38,7 @@ public class ApplicationDialogTest extends SqlTest {
 		addResource(args, StandardKeys.STEUER_DATEI, steuerFile);
 		addResource(args, StandardKeys.EXCEL_VORLAGE, templateFile);
 		addOutput(args, StandardKeys.AUSGABE_DATEI, outputFile);
-		try {
-			new ExcelOutputApplication().main(args);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// new ApplicationDialog().main(new String[] {"a"});
+		new ExcelOutputApplication().main(args);
 	}
 
 	@Test

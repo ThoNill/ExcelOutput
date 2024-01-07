@@ -1,6 +1,5 @@
 package org.thonill;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
@@ -28,7 +27,7 @@ public class ConnectionInfoTest extends SqlTest {
 		try {
 			ConnectionInfo info = new ConnectionInfo("sa", "", "src\\test\\resources\\testDb.properties");
 			try (Connection conn = info.createConnection()) {
-				assert(conn != null);
+				assert (conn != null);
 			} catch (Exception e) {
 				LOG.severe(e.getLocalizedMessage());
 				fail("connection to db failed");
@@ -39,13 +38,13 @@ public class ConnectionInfoTest extends SqlTest {
 		}
 
 	}
-	
+
 	@Test
 	void testGetWrongUserConnection() {
 		try {
 			ConnectionInfo info = new ConnectionInfo("user", "", "src\\test\\resources\\testDb.properties");
 			try (Connection conn = info.createConnection()) {
-				assert(conn != null);
+				assert (conn != null);
 				fail("connection to db does not faile");
 			} catch (Exception e) {
 				LOG.severe(e.getLocalizedMessage());
