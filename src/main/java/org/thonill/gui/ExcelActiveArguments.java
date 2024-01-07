@@ -92,7 +92,7 @@ public class ExcelActiveArguments extends StandardKeys implements ActiveArgument
 			LOG.info("end createFiles");
 			LOG.severe();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			LOG.severe(e.getLocalizedMessage());
 			throw new ApplicationException(e.getMessage());
 		}

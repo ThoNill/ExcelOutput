@@ -398,7 +398,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					arguments.run();
 					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 					LOG.severe(e.getLocalizedMessage());
 					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 				}

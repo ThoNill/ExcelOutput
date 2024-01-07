@@ -32,7 +32,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 			Map<String, String> arguments = parseArgs(args);
 			new ExcelOutputApplication().main(arguments);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			LOG.severe(e.getLocalizedMessage());
 		}
 	}
