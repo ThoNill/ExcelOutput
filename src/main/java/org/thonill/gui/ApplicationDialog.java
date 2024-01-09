@@ -33,15 +33,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.thonill.actions.ExportArt;
+import org.thonill.actions.FileCreator;
 import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 import org.thonill.replace.VariableExtractor;
 
 public class ApplicationDialog extends JFrame implements WindowListener {
-
-	public enum ExportArt {
-		VORLAGE, STEUERDATEI, CSV
-	}
 
 	private static final long serialVersionUID = 1L;
 	private boolean run = true;
@@ -51,7 +49,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	private JPasswordField passwordField;
 	private JTextField fileNameTextField;
 
-	private JFileChooser directoryChooser;
+	private JFileChooser outputDirChooser;
 	private JFileChooser templateFileChooser;
 	private JFileChooser sqlFileChooser;
 
@@ -64,6 +62,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	private JRadioButton configFileRadioButton;
 
 	private JRadioButton csvFileRadioButton;
+	private JLabel outputLabel;
 
 	public ApplicationDialog(ActiveArguments arguments) {
 		super("Swing Anwendung");
@@ -80,9 +79,10 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	private void initFields() {
 
-		directoryChooser = new JFileChooser();
-		directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		configChooser(directoryChooser, StandardKeys.AUSGABE_DIR);
+		outputDirChooser = new JFileChooser();
+		outputDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		configChooser(outputDirChooser, StandardKeys.AUSGABE_DIR);
+		outputLabel = new JLabel(" Dateiname:");
 
 		templateRadioButton = new JRadioButton("Vorlage", true);
 		configFileRadioButton = new JRadioButton("Steuerdatei", false);
@@ -179,17 +179,17 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 		LOG.info("createOutputFileChooser");
 		// Tab 4: Dateiauswahl mit Verzeichnis und Dateiname
 
-		JPanel fieldPanel = new JPanel();
-		fieldPanel.setLayout(new GridLayout(1, 3, 5, 5));
+		JPanel outputPanel = new JPanel();
+		outputPanel.setLayout(new GridLayout(1, 3, 5, 5));
 
-		fieldPanel.add(new JLabel(" Dateiname:"));
-		fieldPanel.add(fileNameTextField);
-		addGlue(fieldPanel);
+		outputPanel.add(outputLabel);
+		outputPanel.add(fileNameTextField);
+		addGlue(outputPanel);
 
 		JPanel fileSelectionPanel = new JPanel();
-		fileSelectionPanel.add(fieldPanel);
+		fileSelectionPanel.add(outputPanel);
 		fileSelectionPanel.setLayout(new BoxLayout(fileSelectionPanel, BoxLayout.Y_AXIS));
-		fileSelectionPanel.add(directoryChooser);
+		fileSelectionPanel.add(outputDirChooser);
 		addGlue(fileSelectionPanel);
 		return fileSelectionPanel;
 	}
@@ -332,45 +332,15 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	private void storeArguments() {
 		arguments.clear();
+		arguments.setSqlFile(getSqlFile());
+		arguments.setAusgabeDatei(getFileName());
+		arguments.setAusgabeDir(getOutputDir());
+		arguments.setTemplateFile(getTemplateFile());
+		arguments.setUser(getUser());
+		arguments.setPassword(getPassword());
+		arguments.setExportArt(getExportArt());
 
-		arguments.put(StandardKeys.USER, getUser());
-		arguments.put(StandardKeys.PASSWORD, getPassword());
-		arguments.put(StandardKeys.SQL_DATEI, getSqlFile());
-		arguments.put(StandardKeys.VORLAGE, getTemplateFile());
 		dynamicFields.storeArguments(arguments);
-
-		putOutputFileNames();
-
-		putVorlageInArguments();
-
-	}
-
-	private void putOutputFileNames() {
-		String outputDir = getOutputDir();
-		String outputFileName = getFileName();
-		arguments.put(StandardKeys.AUSGABE_DATEI_NAME, outputFileName);
-		arguments.put(StandardKeys.AUSGABE_DIR, outputDir);
-		String outputFilePath = new File((outputDir == null) ? "." : outputDir,
-				(outputFileName == null) ? "test.cvs" : outputFileName).getAbsolutePath();
-		arguments.put(StandardKeys.AUSGABE_DATEI, outputFilePath);
-	}
-
-	private void putVorlageInArguments() {
-		ExportArt art = getExportArt();
-		String path = getTemplateFile();
-		switch (art) {
-		case CSV:
-			break;
-		case STEUERDATEI:
-			arguments.put(StandardKeys.STEUER_DATEI, path);
-			break;
-		case VORLAGE:
-			arguments.put(StandardKeys.EXCEL_VORLAGE, path);
-			break;
-		default:
-			break;
-
-		}
 	}
 
 	public void addActions() {
@@ -398,7 +368,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 					arguments.run();
 					msgBox("Die Dateien wurden erstellt", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 					LOG.severe(e.getLocalizedMessage());
 					msgBox("Es ist ein Fehler aufgetreten!", JOptionPane.ERROR_MESSAGE);
 				}
@@ -426,6 +396,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			public void actionPerformed(ActionEvent e) {
 				if (csvFileRadioButton.isSelected()) {
 					templateFileChooser.setVisible(false);
+					fileNameTextField.setVisible(true);
+					outputDirChooser.setVisible(true);
+					outputLabel.setVisible(true);
 					changeFileNameSuffix();
 				}
 			}
@@ -438,6 +411,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			public void actionPerformed(ActionEvent e) {
 				if (configFileRadioButton.isSelected()) {
 					templateFileChooser.setVisible(true);
+					fileNameTextField.setVisible(false);
+					outputDirChooser.setVisible(false);
+					outputLabel.setVisible(false);
 					changeFileNameSuffix();
 				}
 			}
@@ -450,6 +426,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			public void actionPerformed(ActionEvent e) {
 				if (templateRadioButton.isSelected()) {
 					templateFileChooser.setVisible(true);
+					fileNameTextField.setVisible(true);
+					outputDirChooser.setVisible(true);
+					outputLabel.setVisible(true);
 					changeFileNameSuffix();
 				}
 			}
@@ -529,7 +508,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	}
 
 	public static void main(String[] args) {
-		ExcelActiveArguments excel = new ExcelActiveArguments();
+		FileCreator excel = new FileCreator();
 		ApplicationDialog app = new ApplicationDialog(excel);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -649,7 +628,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	}
 
 	private String getOutputDir() {
-		File f = directoryChooser.getSelectedFile();
+		File f = outputDirChooser.getSelectedFile();
 		if (f != null) {
 			return f.getAbsolutePath();
 		}
@@ -657,7 +636,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	}
 
 	private void setOutputDir(String path) {
-		directoryChooser.setSelectedFile(null2CurrentDir(path));
+		outputDirChooser.setSelectedFile(null2CurrentDir(path));
 	}
 
 	private String getTemplateFile() {
@@ -706,22 +685,28 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	}
 
 	public ExportArt getExportArt() {
-		if (csvFileRadioButton.isSelected())
+		if (csvFileRadioButton.isSelected()) {
 			return ExportArt.CSV;
-		if (configFileRadioButton.isSelected())
+		}
+		if (configFileRadioButton.isSelected()) {
 			return ExportArt.STEUERDATEI;
-		if (templateRadioButton.isSelected())
+		}
+		if (templateRadioButton.isSelected()) {
 			return ExportArt.VORLAGE;
+		}
 		return ExportArt.CSV;
 	}
 
 	public ExportArt getExportArt(String name) {
-		if (ExportArt.CSV.name().equals(name))
+		if (ExportArt.CSV.name().equals(name)) {
 			return ExportArt.CSV;
-		if (ExportArt.STEUERDATEI.name().equals(name))
+		}
+		if (ExportArt.STEUERDATEI.name().equals(name)) {
 			return ExportArt.STEUERDATEI;
-		if (ExportArt.VORLAGE.name().equals(name))
+		}
+		if (ExportArt.VORLAGE.name().equals(name)) {
 			return ExportArt.VORLAGE;
+		}
 		return ExportArt.CSV;
 	}
 

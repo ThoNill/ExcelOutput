@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.actions.FileCreator;
 import org.thonill.excel.ReadSteuerItems;
 import org.thonill.logger.LOG;
 
@@ -20,7 +20,7 @@ public class ReadSteuerItemsTest {
 	void testReadSteuerItemsFromExcel() {
 		try {
 			ReadSteuerItems readSteuerItems = new ReadSteuerItems("src\\test\\resources\\Steuerung.xls");
-			List<AusgabeSteuerItem> items = readSteuerItems.readSteuerItemsFromExcel();
+			List<FileCreator> items = readSteuerItems.readSteuerItemsFromExcel();
 			assertEquals(4, items.size());
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());

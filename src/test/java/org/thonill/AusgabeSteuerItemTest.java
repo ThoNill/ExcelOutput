@@ -7,11 +7,11 @@ import java.sql.DriverManager;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.actions.FileCreator;
 import org.thonill.logger.LOG;
 
 /**
- * Test class for AusgabeSteuerItem
+ * Test class for FileCreator
  */
 public class AusgabeSteuerItemTest extends SqlTest {
 
@@ -24,7 +24,7 @@ public class AusgabeSteuerItemTest extends SqlTest {
 	void testCreateAusgabeDateien() {
 		try {
 			try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-				AusgabeSteuerItem.createAusgabeDateien("src\\test\\resources\\Steuerung.xls", conn);
+				FileCreator.createAusgabeDateien("src\\test\\resources\\Steuerung.xls", conn);
 			}
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());

@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.thonill.actions.FileCreator;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
 
@@ -17,7 +18,7 @@ import org.thonill.logger.LOG;
  * to a database.
  */
 
-public class ExcelOutputApplication extends ExcelActiveArguments {
+public class ExcelOutputApplication extends FileCreator {
 
 	private boolean run = true;
 	Map<String, String> args;
@@ -32,7 +33,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 			Map<String, String> arguments = parseArgs(args);
 			new ExcelOutputApplication().main(arguments);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			LOG.severe(e.getLocalizedMessage());
 		}
 	}
@@ -46,7 +47,7 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 	public void runGui() {
 
 		LOG.info("Start runGui");
-		checkNotNull(arguments, "ExcelOutputApplication.main arguments is null");
+		checkNotNull(daten, "ExcelOutputApplication.main daten is null");
 
 		String connectionFilePath = getFilePath(DB_DATEI);
 		checkNotNull(connectionFilePath, "we need -dbDatei ");
@@ -115,8 +116,17 @@ public class ExcelOutputApplication extends ExcelActiveArguments {
 	@Override
 	public void clear() {
 		super.clear();
+
 		for (String key : args.keySet()) {
 			put(key, args.get(key));
 		}
+
+		setDbFile(args.get(DB_DATEI));
+		setSqlFile(args.get(SQL_DATEI));
+		setAusgabeDatei(args.get(AUSGABE_DATEI_NAME));
+		setAusgabeDir(args.get(AUSGABE_DIR));
+		setTemplateFile(args.get(VORLAGE));
+		setUser(args.get(USER));
+		setPassword(args.get(PASSWORD));
 	}
 }

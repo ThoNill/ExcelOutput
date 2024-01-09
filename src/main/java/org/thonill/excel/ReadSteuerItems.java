@@ -17,7 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.thonill.actions.AusgabeSteuerItem;
+import org.thonill.actions.FileCreator;
 import org.thonill.logger.LOG;
 
 /**
@@ -36,8 +36,8 @@ public class ReadSteuerItems {
 
 	}
 
-	public List<AusgabeSteuerItem> readSteuerItemsFromExcel() throws IOException {
-		List<AusgabeSteuerItem> items = new ArrayList<>();
+	public List<FileCreator> readSteuerItemsFromExcel() throws IOException {
+		List<FileCreator> items = new ArrayList<>();
 
 		// Open Excel workbook
 		LOG.info("// Open Excel workbook");
@@ -77,7 +77,7 @@ public class ReadSteuerItems {
 	 * @param items
 	 * @param row
 	 */
-	private void addItem(List<AusgabeSteuerItem> items, HSSFRow row, FormulaEvaluator evaluator) {
+	private void addItem(List<FileCreator> items, HSSFRow row, FormulaEvaluator evaluator) {
 		checkNotNull(items, "ReadSteuerItems.addItem: items is null");
 		checkNotNull(evaluator, "ReadSteuerItems.addItem: evaluator is null");
 
@@ -102,7 +102,7 @@ public class ReadSteuerItems {
 					LOG.info("NN {0} ", column);
 				}
 			}
-			items.add(new AusgabeSteuerItem(data));
+			items.add(new FileCreator(data));
 			break;
 		default:
 			break;
