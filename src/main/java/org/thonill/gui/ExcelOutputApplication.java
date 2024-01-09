@@ -33,7 +33,6 @@ public class ExcelOutputApplication extends FileCreator {
 			Map<String, String> arguments = parseArgs(args);
 			new ExcelOutputApplication().main(arguments);
 		} catch (Exception e) {
-			// e.printStackTrace();
 			LOG.severe(e.getLocalizedMessage());
 		}
 	}
@@ -56,7 +55,7 @@ public class ExcelOutputApplication extends FileCreator {
 		LOG.info("Vor login Dialog");
 		SwingUtilities.invokeLater(() -> {
 			try {
-				inGui(connectionFilePath);
+				inGui();
 			} catch (Exception e) {
 				msgBox("Error: " + e.getLocalizedMessage(), JOptionPane.ERROR_MESSAGE);
 				LOG.severe(e.getLocalizedMessage());
@@ -66,7 +65,7 @@ public class ExcelOutputApplication extends FileCreator {
 
 	}
 
-	private void inGui(String connectionFilePath) {
+	private void inGui() {
 		try {
 			ApplicationDialog app = new ApplicationDialog(this);
 			app.setVisible(true);
@@ -127,6 +126,6 @@ public class ExcelOutputApplication extends FileCreator {
 		setAusgabeDir(args.get(AUSGABE_DIR));
 		setTemplateFile(args.get(VORLAGE));
 		setUser(args.get(USER));
-		setPassword(args.get(PASSWORD));
+		
 	}
 }

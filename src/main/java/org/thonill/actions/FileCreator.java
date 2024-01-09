@@ -21,7 +21,7 @@ import org.thonill.replace.ReplaceDescription;
 import org.thonill.sql.ConnectionInfo;
 import org.thonill.sql.ExecutableStatementSet;
 
-public class FileCreator extends StandardKeys implements ActiveArguments {
+public class FileCreator implements ActiveArguments, StandardKeys  {
 
 	protected Map<String, String> daten;
 	private String user;
@@ -42,20 +42,20 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 	 * Constructor for FileCreator. Initializes the object's fields from the
 	 * provided data map. Validates required fields and file paths.
 	 */
-	public FileCreator(Map<String, String> daten) {
-		setDaten(daten);
-		setAusgabeDatei(getValue(daten, AUSGABE_DATEI, true));
-		setSqlFile(getValue(daten, SQL_DATEI, true));
-		setExportArt(daten);
+	public FileCreator(Map<String, String> datenMap) {
+		setDaten(datenMap);
+		setAusgabeDatei(getValue(datenMap, AUSGABE_DATEI, true));
+		setSqlFile(getValue(datenMap, SQL_DATEI, true));
+		setExportArt(datenMap);
 
 		switch (exportArt) {
 		case CSV:
 			break;
 		case STEUERDATEI:
-			this.templateFile = getValue(daten, STEUER_DATEI, true);
+			this.templateFile = getValue(datenMap, STEUER_DATEI, true);
 			break;
 		case VORLAGE:
-			this.templateFile = getValue(daten, EXCEL_VORLAGE, true);
+			this.templateFile = getValue(datenMap, EXCEL_VORLAGE, true);
 			break;
 		default:
 			break;
@@ -75,12 +75,12 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 		LOG.info("nach checkArguments");
 	}
 
-	private void setExportArt(Map<String, String> daten2) {
+	private void setExportArt(Map<String, String> datenMap) {
 		if (outputFile.endsWith("csv")) {
 			setExportArt(ExportArt.CSV);
 		} else {
-			String excelVorlage = getValue(daten, EXCEL_VORLAGE, false);
-			String steuerDatei = getValue(daten, STEUER_DATEI, false);
+			String excelVorlage = getValue(datenMap, EXCEL_VORLAGE, false);
+			String steuerDatei = getValue(datenMap, STEUER_DATEI, false);
 			if (excelVorlage != null) {
 				setExportArt(ExportArt.VORLAGE);
 			}
@@ -93,12 +93,8 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 	@Override
 	public void run() {
 		LOG.info("Starte run");
-		try {
-			checkArguments();
-			createFiles();
-		} catch (Exception e) {
-			throw e;
-		}
+		checkArguments();
+		createFiles();
 	}
 
 	private void createFiles() {
@@ -133,7 +129,6 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOG.severe(e.getLocalizedMessage());
 			throw new ApplicationException(e.getMessage());
 		}
@@ -173,15 +168,6 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 		return filePath;
 	}
 
-	private static String getPostfix(String templateFilePath) {
-		boolean createExcelFile = (templateFilePath != null);
-		if (createExcelFile) {
-			return (templateFilePath.endsWith(".xls")) ? ".xls" : ".xlsx";
-		} else {
-			return ".csv";
-		}
-	}
-
 	private String getDatenValue(String key, String defaultValue) {
 		String value = daten.get(key);
 		if (value == null) {
@@ -201,7 +187,7 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 
 	@Override
 	public void stop() {
-
+		// is empty
 	}
 
 	/**
@@ -269,17 +255,7 @@ public class FileCreator extends StandardKeys implements ActiveArguments {
 		createAusgabeDateien(items, conn);
 	}
 
-	/**
-	 * Logs the absolute path of the given filename to the logger.
-	 *
-	 * @param filename The file path to log.
-	 */
-	private void showAbsolutePath(String filename) {
-		if (filename != null) {
-			LOG.info(new File(filename).getAbsolutePath());
-		}
-	}
-
+	
 	@Override
 	public void clear() {
 		this.daten = new HashMap<>();

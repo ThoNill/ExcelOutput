@@ -39,7 +39,7 @@ import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 import org.thonill.replace.VariableExtractor;
 
-public class ApplicationDialog extends JFrame implements WindowListener {
+public class ApplicationDialog extends JFrame implements WindowListener, StandardKeys  {
 
 	private static final long serialVersionUID = 1L;
 	private boolean run = true;
@@ -90,21 +90,21 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 		templateFileChooser = new JFileChooser();
 		templateFileChooser.setFileFilter(new FileNameExtensionFilter("Excel Dateien", "xls", "xlsx"));
-		configChooser(templateFileChooser, StandardKeys.VORLAGE);
+		configChooser(templateFileChooser, VORLAGE);
 		templateFileChooser.setVisible(!isRadioSelected(ExportArt.CSV, false));
 
 		fileNameTextField = new JTextField(20);
-		setFieldWithProperty(fileNameTextField, StandardKeys.AUSGABE_DATEI_NAME);
+		setFieldWithProperty(fileNameTextField, AUSGABE_DATEI_NAME);
 
 		sqlFileChooser = new JFileChooser();
 		sqlFileChooser.setFileFilter(new FileNameExtensionFilter("Sql Dateien", "sql"));
-		configChooser(sqlFileChooser, StandardKeys.SQL_DATEI);
+		configChooser(sqlFileChooser, SQL_DATEI);
 
 		passwordField = new JPasswordField(20);
 		passwordField.setText("");
 
 		usernameField = new JTextField(20);
-		setFieldWithProperty(usernameField, StandardKeys.USER);
+		setFieldWithProperty(usernameField, USER);
 
 		dynamicPanel = new JPanel();
 		dynamicPanel.setLayout(new GridLayout(1, 1, 5, 5));
@@ -310,22 +310,22 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	private void storeProperties(Properties properties) {
 
-		properties.put(StandardKeys.USER, getUser());
-		properties.put(StandardKeys.AUSGABE_DATEI_NAME, getFileName());
-		properties.put(StandardKeys.AUSGABE_DIR, getOutputDir());
-		properties.put(StandardKeys.SQL_DATEI, getSqlFile());
-		properties.put(StandardKeys.VORLAGE, getTemplateFile());
-		properties.put(StandardKeys.EXPORT_ART, getExportArt().name());
+		properties.put(USER, getUser());
+		properties.put(AUSGABE_DATEI_NAME, getFileName());
+		properties.put(AUSGABE_DIR, getOutputDir());
+		properties.put(SQL_DATEI, getSqlFile());
+		properties.put(VORLAGE, getTemplateFile());
+		properties.put(EXPORT_ART, getExportArt().name());
 		dynamicFields.storeProperties(properties);
 	}
 
 	private void loadProperties(Properties properties) {
-		setUser((String) properties.get(StandardKeys.USER));
-		setFileName((String) properties.get(StandardKeys.AUSGABE_DATEI_NAME));
-		setOutputDir((String) properties.get(StandardKeys.AUSGABE_DIR));
-		setSqlFile((String) properties.get(StandardKeys.SQL_DATEI));
-		setTemplateFile((String) properties.get(StandardKeys.VORLAGE));
-		setExportArt(getExportArt((String) properties.get(StandardKeys.EXPORT_ART)));
+		setUser((String) properties.get(USER));
+		setFileName((String) properties.get(AUSGABE_DATEI_NAME));
+		setOutputDir((String) properties.get(AUSGABE_DIR));
+		setSqlFile((String) properties.get(SQL_DATEI));
+		setTemplateFile((String) properties.get(VORLAGE));
+		setExportArt(getExportArt((String) properties.get(EXPORT_ART)));
 		updateDynamicFields();
 
 	}
@@ -455,8 +455,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			public void actionPerformed(ActionEvent ae) {
 
 				try {
-					arguments.put(StandardKeys.USER, getUser());
-					arguments.put(StandardKeys.PASSWORD, getPassword());
+					arguments.setUser(getUser());
+					arguments.setPassword(getPassword());
+
 					Connection conn = arguments.createConnection();
 					conn.close();
 					msgBox("Connection ist ok", JOptionPane.OK_OPTION);
@@ -472,10 +473,8 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	private void changeFileNameSuffix() {
 		String xls = ".xls";
 		String templateFile = getTemplateFile();
-		if (templateFile != null) {
-			if (templateFile.endsWith(".xlsx")) {
-				xls = ".xlsx";
-			}
+		if (templateFile != null && templateFile.endsWith(".xlsx")) {
+			xls = ".xlsx";
 		}
 		String text = getFileName();
 		String modifiedText = text;
@@ -492,7 +491,7 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 			break;
 		}
 		setFileName(modifiedText);
-		properties.put(StandardKeys.AUSGABE_DATEI_NAME, modifiedText);
+	
 	}
 
 	private void setFieldWithProperty(JTextField field, String key) {
@@ -501,9 +500,9 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 	}
 
 	private void addGlue(JPanel panel) {
-		JPanel dynamicPanel = new JPanel();
-		dynamicPanel.setLayout(new BorderLayout());
-		panel.add(dynamicPanel);
+		JPanel glue = new JPanel();
+		glue.setLayout(new BorderLayout());
+		panel.add(glue);
 		// panel.add(Box.createGlue()); geht nicht so gut
 	}
 
@@ -554,25 +553,27 @@ public class ApplicationDialog extends JFrame implements WindowListener {
 
 	@Override
 	public void windowClosed(WindowEvent e) {
-
+		// is empty
 	}
 
 	@Override
 	public void windowIconified(WindowEvent e) {
-
+		// is empty
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent e) {
-
+		// is empty
 	}
 
 	@Override
 	public void windowActivated(WindowEvent e) {
+		// is empty
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {
+		// is empty
 	}
 
 	private void updateDynamicFields() {

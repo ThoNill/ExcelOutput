@@ -1,8 +1,7 @@
 package org.thonill.keys;
 
-public class StandardKeys {
+public interface StandardKeys {
 	public static final String USER = "user";
-	public static final String PASSWORD = "password";
 	public static final String AUSGABE_DATEI = "ausgabeDatei";
 	public static final String AUSGABE_DATEI_NAME = "ausgabeDateiName";
 	public static final String EXPORT_ART = "exportArt";
