@@ -126,6 +126,6 @@ public class ExcelOutputApplication extends FileCreator {
 		setAusgabeDir(args.get(AUSGABE_DIR));
 		setTemplateFile(args.get(VORLAGE));
 		setUser(args.get(USER));
-		
+
 	}
 }

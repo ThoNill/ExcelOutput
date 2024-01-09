@@ -21,7 +21,7 @@ import org.thonill.replace.ReplaceDescription;
 import org.thonill.sql.ConnectionInfo;
 import org.thonill.sql.ExecutableStatementSet;
 
-public class FileCreator implements ActiveArguments, StandardKeys  {
+public class FileCreator implements ActiveArguments, StandardKeys {
 
 	protected Map<String, String> daten;
 	private String user;
@@ -255,7 +255,6 @@ public class FileCreator implements ActiveArguments, StandardKeys  {
 		createAusgabeDateien(items, conn);
 	}
 
-	
 	@Override
 	public void clear() {
 		this.daten = new HashMap<>();

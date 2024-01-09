@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +25,7 @@ public class VariableExtractor {
 	}
 
 	private static List<FieldDescription> extractFieldDescriptions(String original) {
-		List<FieldDescription> keys = new ArrayList<>();
+		Map<String, FieldDescription> fields = new HashMap<>();
 		String regexpr = "\\{([^\\{\\}]*)\\}";
 
 		Pattern pattern = Pattern.compile(regexpr);
@@ -31,10 +33,13 @@ public class VariableExtractor {
 		Matcher matcher = pattern.matcher(original);
 		while (matcher.find()) {
 			String fieldName = original.substring(matcher.start() + 1, matcher.end() - 1);
-			keys.add(new FieldDescription(fieldName, "",
-					"" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1).toLowerCase()));
+			if (!fields.containsKey(fieldName)) {
+				FieldDescription descr = new FieldDescription(fieldName, "",
+						"" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1).toLowerCase());
+				fields.put(fieldName, descr);
+			}
 		}
-		return keys;
+		return new ArrayList<FieldDescription>(fields.values());
 	}
 
 }

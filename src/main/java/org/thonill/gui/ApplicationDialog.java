@@ -39,7 +39,7 @@ import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 import org.thonill.replace.VariableExtractor;
 
-public class ApplicationDialog extends JFrame implements WindowListener, StandardKeys  {
+public class ApplicationDialog extends JFrame implements WindowListener, StandardKeys {
 
 	private static final long serialVersionUID = 1L;
 	private boolean run = true;
@@ -491,7 +491,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 			break;
 		}
 		setFileName(modifiedText);
-	
+
 	}
 
 	private void setFieldWithProperty(JTextField field, String key) {
