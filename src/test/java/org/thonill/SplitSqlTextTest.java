@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.thonill.logger.LOG;
 import org.thonill.replace.RawSqlStatement;
 import org.thonill.replace.SplitSqlText;
 
@@ -85,6 +86,7 @@ public class SplitSqlTextTest {
 	}
 
 	private void testExtraction(String sqls, String sql0) {
+		LOG.info("parse {0}", sql0);
 		List<RawSqlStatement> s = splitter.extractList(sqls);
 		assertEquals(2, s.size());
 		assertEquals(sql0, s.get(0).getQueryString());

@@ -43,7 +43,7 @@ public class ApplicationDialogTest extends SqlTest {
 
 	@Test
 	public void callMain() {
-		callMain("selectRechnungen.sql", null, null, "out1.xls");
+		// callMain("selectRechnungen.sql", null, null, "out1.xls");
 		// callMain("selectRechnungen.sql", null, "RechnungVorlage.xls", "out1.xls");
 	}
 

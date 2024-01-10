@@ -33,7 +33,6 @@ public class SheetArea {
 
 		this.arrayValue = arrayValue;
 		this.sheet = workbook.getSheetAt(bereichsName.getSheetIndex());
-
 		this.ssVersion = workbook.getSpreadsheetVersion();
 		this.bereichsName = bereichsName;
 		init();
@@ -47,7 +46,7 @@ public class SheetArea {
 		removeRowsAbove(bereichFirstRow);
 
 		// Write data rows
-		LOG.info("// Write data rows");
+		LOG.info("Write data rows");
 		int rowNum = bereichFirstRow + 1;
 		Value[] values = arrayValue.getValues();
 		do {
@@ -109,50 +108,59 @@ public class SheetArea {
 		for (int i = fromRow; i <= maxRow; i++) {
 			Row rowToBeCopied = fromSheet.getRow(i);
 			if (rowToBeCopied != null) {
-				Row newRow = toSheet.createRow(i - fromRow + toRow);
-				for (int j = 0; j < rowToBeCopied.getLastCellNum(); j++) {
-					Cell cellToBeCopied = rowToBeCopied.getCell(j);
-					if (cellToBeCopied != null) {
-						Cell cellToBeAdded = newRow.createCell(j);
-						cellToBeAdded.setCellStyle(cellToBeCopied.getCellStyle());
-						switch (cellToBeCopied.getCellType()) {
-						case NUMERIC:
-							cellToBeAdded.setCellValue(cellToBeCopied.getNumericCellValue());
-							break;
-						case STRING:
-							String text = cellToBeCopied.getStringCellValue();
-							if (!formulaRoString && text.startsWith(FORMULA_MARKER)) {
-								cellToBeAdded.setCellFormula(text.substring(FORMULA_MARKER.length()));
-							} else {
-								cellToBeAdded.setCellValue(text);
-							}
-							break;
-						case BOOLEAN:
-							cellToBeAdded.setCellValue(cellToBeCopied.getBooleanCellValue());
-							break;
-						case ERROR:
-							cellToBeAdded.setCellErrorValue(cellToBeCopied.getErrorCellValue());
-							break;
-						case FORMULA:
-							String formula = cellToBeCopied.getCellFormula();
-							LOG.info("Formula: {0}", formula);
-							if (formulaRoString) {
-								cellToBeAdded.setCellValue(FORMULA_MARKER + formula);
-							} else {
-								cellToBeAdded.setCellFormula(formula);
-							}
-							break;
-						case BLANK:
-							break;
-						case _NONE:
-							break;
-						default:
-							throw new IllegalStateException("Unexpected value: " + cellToBeCopied.getCellType());
-
-						}
-					}
-				}
+				copyRow(toRow, toSheet, fromRow, formulaRoString, i, rowToBeCopied);
 			}
+		}
+	}
+
+	private static void copyRow(int toRow, Sheet toSheet, int fromRow, boolean formulaRoString, int i,
+			Row rowToBeCopied) {
+		Row newRow = toSheet.createRow(i - fromRow + toRow);
+		for (int j = 0; j < rowToBeCopied.getLastCellNum(); j++) {
+			Cell cellToBeCopied = rowToBeCopied.getCell(j);
+			if (cellToBeCopied != null) {
+				Cell cellToBeAdded = newRow.createCell(j);
+				copyCell(formulaRoString, cellToBeCopied, cellToBeAdded);
+			}
+		}
+	}
+
+	private static void copyCell(boolean formulaRoString, Cell cellToBeCopied, Cell cellToBeAdded) {
+		cellToBeAdded.setCellStyle(cellToBeCopied.getCellStyle());
+		switch (cellToBeCopied.getCellType()) {
+		case NUMERIC:
+			cellToBeAdded.setCellValue(cellToBeCopied.getNumericCellValue());
+			break;
+		case STRING:
+			String text = cellToBeCopied.getStringCellValue();
+			if (!formulaRoString && text.startsWith(FORMULA_MARKER)) {
+				cellToBeAdded.setCellFormula(text.substring(FORMULA_MARKER.length()));
+			} else {
+				cellToBeAdded.setCellValue(text);
+			}
+			break;
+		case BOOLEAN:
+			cellToBeAdded.setCellValue(cellToBeCopied.getBooleanCellValue());
+			break;
+		case ERROR:
+			cellToBeAdded.setCellErrorValue(cellToBeCopied.getErrorCellValue());
+			break;
+		case FORMULA:
+			String formula = cellToBeCopied.getCellFormula();
+			LOG.info("Formula: {0}", formula);
+			if (formulaRoString) {
+				cellToBeAdded.setCellValue(FORMULA_MARKER + formula);
+			} else {
+				cellToBeAdded.setCellFormula(formula);
+			}
+			break;
+		case BLANK:
+			break;
+		case _NONE:
+			break;
+		default:
+			throw new IllegalStateException("Unexpected value: " + cellToBeCopied.getCellType());
+
 		}
 	}
 

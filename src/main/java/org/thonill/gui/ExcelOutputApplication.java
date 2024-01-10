@@ -1,14 +1,11 @@
 package org.thonill.gui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-
 import org.thonill.actions.FileCreator;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
@@ -40,7 +37,11 @@ public class ExcelOutputApplication extends FileCreator {
 	public void main(Map<String, String> args) {
 		this.args = args;
 		clear();
-		runGui();
+		if (die_Parameter_reichen_zur_Ausführung()) {
+			run();
+		} else {
+			runGui();
+		}
 	}
 
 	public void runGui() {
@@ -116,8 +117,8 @@ public class ExcelOutputApplication extends FileCreator {
 	public void clear() {
 		super.clear();
 
-		for (String key : args.keySet()) {
-			put(key, args.get(key));
+		for (Map.Entry<String, String> entry : args.entrySet()) {
+			put(entry.getKey(), entry.getValue());
 		}
 
 		setDbFile(args.get(DB_DATEI));

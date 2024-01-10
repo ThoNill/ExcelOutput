@@ -22,8 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /*
  * https://stackoverflow.com/questions/1636759/poi-excel-applying-formulas-in-a-relative-way
- */
-/**
+ *
  * Helper class for working with Excel formulas. Allows copying a formula to
  * another cell while adjusting relative cell references. Uses POI classes for
  * parsing and rendering formulas.
@@ -60,39 +59,48 @@ public class FormulaHelper {
 		int shiftCols = dest.getColumnIndex() - currentColumn;
 		currentRow = dest.getRowIndex();
 		currentColumn = dest.getColumnIndex();
-		for (Ptg ptg : ptgs) {
-			if (ptg instanceof RefPtgBase) // base class for cell references
-			{
-				RefPtgBase ref = (RefPtgBase) ptg;
-				if (ref.isColRelative()) {
-					ref.setColumn(ref.getColumn() + shiftCols);
-				}
-				if (ref.isRowRelative()) {
-					ref.setRow(ref.getRow() + shiftRows);
-				}
-			} else if (ptg instanceof AreaPtg) // base class for range references
-			{
-				AreaPtg ref = (AreaPtg) ptg;
-				if (ref.isFirstColRelative()) {
-					ref.setFirstColumn(ref.getFirstColumn() + shiftCols);
-				}
-				if (ref.isLastColRelative()) {
-					ref.setLastColumn(ref.getLastColumn() + shiftCols);
-				}
-				if (ref.isFirstRowRelative()) {
-					ref.setFirstRow(ref.getFirstRow() + shiftRows);
-				}
-				if (ref.isLastRowRelative()) {
-					ref.setLastRow(ref.getLastRow() + shiftRows);
-				}
-			}
-		}
+		shiftTokens(shiftRows, shiftCols);
 		String formula = FormulaRenderer.toFormulaString((FormulaRenderingWorkbook) workbookWrapper, ptgs);
 		dest.setCellFormula(formula);
 	}
 
-	private EvaluationWorkbook createWorkbookWrapper(Sheet sheet) {
+	private void shiftTokens(int shiftRows, int shiftCols) {
+		for (Ptg ptg : ptgs) {
+			if (ptg instanceof RefPtgBase) // base class for cell references
+			{
+				shiftCellReference(shiftRows, shiftCols, (RefPtgBase) ptg);
+			} else if (ptg instanceof AreaPtg) // base class for range references
+			{
+				shiftAreaReference(shiftRows, shiftCols, (AreaPtg) ptg);
+			}
+		}
+	}
 
+	private void shiftAreaReference(int shiftRows, int shiftCols, AreaPtg ref) {
+		if (ref.isFirstColRelative()) {
+			ref.setFirstColumn(ref.getFirstColumn() + shiftCols);
+		}
+		if (ref.isLastColRelative()) {
+			ref.setLastColumn(ref.getLastColumn() + shiftCols);
+		}
+		if (ref.isFirstRowRelative()) {
+			ref.setFirstRow(ref.getFirstRow() + shiftRows);
+		}
+		if (ref.isLastRowRelative()) {
+			ref.setLastRow(ref.getLastRow() + shiftRows);
+		}
+	}
+
+	private void shiftCellReference(int shiftRows, int shiftCols, RefPtgBase ref) {
+		if (ref.isColRelative()) {
+			ref.setColumn(ref.getColumn() + shiftCols);
+		}
+		if (ref.isRowRelative()) {
+			ref.setRow(ref.getRow() + shiftRows);
+		}
+	}
+
+	private EvaluationWorkbook createWorkbookWrapper(Sheet sheet) {
 		Workbook workbook = sheet.getWorkbook();
 		if (workbook instanceof XSSFWorkbook) {
 			return XSSFEvaluationWorkbook.create((XSSFWorkbook) workbook);
@@ -101,7 +109,6 @@ public class FormulaHelper {
 			return HSSFEvaluationWorkbook.create((HSSFWorkbook) workbook);
 		}
 		throw new IllegalArgumentException("Unsupported workbook type: " + workbook.getClass());
-
 	}
 
 }

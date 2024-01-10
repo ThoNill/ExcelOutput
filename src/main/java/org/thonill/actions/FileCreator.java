@@ -63,6 +63,11 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 		LOG.info("outputFile: {0}", outputFile);
 	}
 
+	protected boolean die_Parameter_reichen_zur_Ausführung() {
+		return this.dbFile != null && this.user != null && this.password != null && this.outputFile != null
+				&& (outputFile.endsWith(".csv") || (this.templateFile != null));
+	}
+
 	private void checkArguments() {
 		LOG.info("Starte checkArguments");
 

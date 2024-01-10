@@ -3,6 +3,7 @@ package org.thonill.replace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;
 
 /**
@@ -19,125 +20,212 @@ public class SplitSqlText {
 	 * This enum represents the parsing status when splitting SQL text into
 	 * statements. IN_SQL - Currently parsing a SQL statement IN_LINE_COMMENT -
 	 * Currently inside a line comment (--) IN_COMMENT - Currently inside a block
-	 * comment ( / * * / END_COMMENT- Just ended a block comment* IN_CONSTANT1-
+	 * comment ( / * * / END_COMMENT - Just ended a block comment* IN_CONSTANT1 -
 	 * Currently inside a single-quoted string constant ('') IN_CONSTANT2 -
 	 * Currently inside a double-quoted string constant ("") STOP_SQL - Reached end
-	 * of a SQL statement START_SQL - At start, ready to begin parsing a new
-	 * statement
+	 * of a SQL statement START_NEW_SQL_LINE - At start, ready to begin parsing a
+	 * new line in a statement
 	 */
 	enum Status {
-		IN_SQL, IN_LINE_COMMENT, IN_COMMENT, END_COMMENT, IN_CONSTANT1, IN_CONSTANT2, STOP_SQL, START_SQL
+		IN_SQL, STOP_SQL, START_NEW_SQL_LINE, IN_LINE_COMMENT, IN_COMMENT, END_COMMENT, IN_CONSTANT1, IN_CONSTANT2
 	}
 
-	private Status status = Status.START_SQL;
+	private Status status = Status.START_NEW_SQL_LINE;
 
 	public List<RawSqlStatement> extractList(String sqls) {
 		sb = new StringBuilder();
 		List<RawSqlStatement> statements = new ArrayList<>();
 		char[] chars = sqls.toCharArray();
-		status = Status.START_SQL;
+		status = Status.START_NEW_SQL_LINE;
 		for (int i = 0; i < chars.length; i++) {
+			char vc = vorherigesZeichen(chars, i);
 			char c = chars[i];
-			char lc = (i > 0 && status != Status.START_SQL) ? chars[i - 1] : ' ';
-			doChar(statements, c, lc);
+			doChar(statements, vc, c);
 		}
 		addSqlStatement(statements);
+
+		if (status == Status.IN_CONSTANT1 || status == Status.IN_CONSTANT2 || status == Status.IN_COMMENT) {
+			throw new ApplicationException("the Text " + sqls + " can not be splitted");
+		}
+
 		return statements;
 	}
 
-	private void doChar(List<RawSqlStatement> statements, char c, char lc) {
-		LOG.info("c= {0}  status= {1} ", ((c == '\n') ? "\\n" : "" + c), status.name());
-		if (c == '\r' || c == '\t') {
+	private char vorherigesZeichen(char[] chars, int i) {
+		return (i == 0 || status == Status.START_NEW_SQL_LINE) ? ' ' : chars[i - 1];
+	}
+
+	private void doChar(List<RawSqlStatement> statements, char vc, char c) {
+		LOG.info("c= {0}  status= {1} ", (zeilenende(c) ? "\\n" : "" + c), status.name());
+		if (als_Leerzeichen_anzusehen(c)) {
 			c = ' ';
 		}
 		switch (this.status) {
 		case IN_SQL:
-			if (lc == '-' && c == '-') {
-				status = Status.IN_LINE_COMMENT;
-			} else if (lc == '/' && c == '*') {
-				status = Status.IN_COMMENT;
-			} else if (c == '\'') {
-				status = Status.IN_CONSTANT1;
-				sb.append(c);
-			} else if (c == '\"') {
-				status = Status.IN_CONSTANT2;
-				sb.append(c);
-			} else if (c == ';') {
-				addSqlStatement(statements);
-			} else if (c == '\n') {
-				status = Status.START_SQL;
-			} else if (c == '-') {
-			} else if (lc == '-' && c != '-') {
-				sb.append('-');
-				sb.append(c);
-			} else if (c == '/') {
-			} else if (lc == '/' && c != '*') {
-				sb.append('/');
-				sb.append(c);
-			} else if (c == '*') {
-			} else if (lc == '*' && c != '/') {
-				sb.append('*');
-				sb.append(c);
-			} else {
-				sb.append(c);
-			}
+			parsingStatement(statements, vc, c);
 			break;
 		case IN_LINE_COMMENT:
-			if (c == '\n') {
-				status = Status.START_SQL;
-			}
+			parsingLineComment(c);
 			break;
 		case IN_COMMENT:
-			if (lc == '*' && c == '/') {
-				status = Status.END_COMMENT;
-			}
+			parsingComment(vc, c);
 			break;
 		case END_COMMENT:
-			if (c == '\n') {
-				status = Status.START_SQL;
-			} else {
-				sb.append(c);
-				status = Status.IN_SQL;
-			}
+			neuerZeilenAnfang(c);
 			break;
 		case IN_CONSTANT1:
-			if (c == '\'') {
-				status = Status.IN_SQL;
-			}
-			sb.append(c);
+			parsingConstante1(c);
 			break;
 		case IN_CONSTANT2:
-			if (c == '\"') {
-				status = Status.IN_SQL;
-			}
-			sb.append(c);
+			parsingConstante2(c);
 			break;
 		case STOP_SQL:
 			addSqlStatement(statements);
-			status = Status.IN_SQL;
-			if (c == '\n') {
-				status = Status.STOP_SQL;
-			} else {
-				sb.append(c);
-			}
+			neuesStatement(c);
 			break;
-		case START_SQL:
-			if (c == '\n') {
-				status = Status.STOP_SQL;
-			} else if (c == ';') {
-				addSqlStatement(statements);
-			} else if (c == '*' || c == '-' || c == '/') {
-				status = Status.IN_SQL;
-			} else if (c != ' ') {
-				status = Status.IN_SQL;
-				sb.append(c);
-			} else {
-				sb.append(c);
-			}
+		case START_NEW_SQL_LINE:
+			parseZeilenanfang(statements, c);
 			break;
 
 		}
 		LOG.info(" to status= {0}", status.name());
+	}
+
+	private void neuerZeilenAnfang(char c) {
+		if (zeilenende(c)) {
+			status = Status.START_NEW_SQL_LINE;
+		} else {
+			sb.append(c);
+			status = Status.IN_SQL;
+		}
+	}
+
+	private void parseZeilenanfang(List<RawSqlStatement> statements, char c) {
+		if (zeilenende(c)) {
+			status = Status.STOP_SQL;
+		} else if (endeEinesSelects(c)) {
+			addSqlStatement(statements);
+		} else if (hat_vielleicht_mit_Kommentaren_zu_tun(c)) {
+			status = Status.IN_SQL;
+		} else if (keinLeerzeichen(c)) {
+			status = Status.IN_SQL;
+			sb.append(c);
+		} else {
+			sb.append(c);
+		}
+	}
+
+	private void neuesStatement(char c) {
+		if (zeilenende(c)) {
+			status = Status.STOP_SQL;
+		} else {
+			status = Status.IN_SQL;
+			sb.append(c);
+		}
+	}
+
+	// Kontante Strings werden erhalten
+	private void parsingConstante2(char c) {
+		if (beginConstante2(c)) {
+			status = Status.IN_SQL;
+		}
+		sb.append(c);
+	}
+
+	// Kontante Strings werden erhalten
+	private void parsingConstante1(char c) {
+		if (beginConstante1(c)) {
+			status = Status.IN_SQL;
+		}
+		sb.append(c);
+	}
+
+	// Die Zeichen in Kommentaren werden bis zum Ende des Kommentars ignoriert
+	private void parsingComment(char vc, char c) {
+		if (endeKommentar(vc, c)) {
+			status = Status.END_COMMENT;
+		}
+	}
+
+	// Die Zeichen in Kommentaren werden werden bis zum Ende des Kommentars
+	// ignoriert
+	private void parsingLineComment(char c) {
+		if (zeilenende(c)) {
+			status = Status.START_NEW_SQL_LINE;
+		}
+	}
+
+	private void parsingStatement(List<RawSqlStatement> statements, char vc, char c) {
+		if (startZeilenkommentar(vc, c)) { // --
+			status = Status.IN_LINE_COMMENT;
+		} else if (starteKommentar(vc, c)) { // /*
+			status = Status.IN_COMMENT;
+		} else if (beginConstante1(c)) { // '
+			status = Status.IN_CONSTANT1;
+			sb.append(c);
+		} else if (beginConstante2(c)) { // "
+			status = Status.IN_CONSTANT2;
+			sb.append(c);
+		} else if (endeEinesSelects(c)) { // ;
+			addSqlStatement(statements);
+		} else if (hat_vielleicht_mit_Kommentaren_zu_tun(c)) { // - / *
+			doNothing();
+		} else if (falls_es_dann_mit_Kommentaren_zu_tun_hat(vc, c)) { // -- /* */
+			sb.append(vc);
+			sb.append(c);
+		} else if (zeilenende(c)) { // \n
+			status = Status.START_NEW_SQL_LINE;
+		} else {
+			sb.append(c);
+		}
+	}
+
+	private boolean endeKommentar(char vc, char c) {
+		return vc == '*' && c == '/';
+	}
+
+	private boolean keinLeerzeichen(char c) {
+		return c != ' ';
+	}
+
+	private boolean als_Leerzeichen_anzusehen(char c) {
+		return c == '\r' || c == '\t';
+	}
+
+	private boolean falls_es_dann_mit_Kommentaren_zu_tun_hat(char vc, char c) {
+		return (vc == '-' && c != '-') || (vc == '/' && c != '*') || (vc == '*' && c != '/');
+	}
+
+	private boolean hat_vielleicht_mit_Kommentaren_zu_tun(char c) {
+		return c == '-' || c == '/' || c == '*';
+	}
+
+	private boolean zeilenende(char c) {
+		return c == '\n';
+	}
+
+	private boolean endeEinesSelects(char c) {
+		return c == ';';
+	}
+
+	private boolean beginConstante2(char c) {
+		return c == '\"';
+	}
+
+	private boolean beginConstante1(char c) {
+		return c == '\'';
+	}
+
+	private boolean starteKommentar(char vc, char c) {
+		return vc == '/' && c == '*';
+	}
+
+	private boolean startZeilenkommentar(char vc, char c) {
+		return vc == '-' && c == '-';
+	}
+
+	private void doNothing() {
+		// Mach nichts
 	}
 
 	private void addSqlStatement(List<RawSqlStatement> statements) {

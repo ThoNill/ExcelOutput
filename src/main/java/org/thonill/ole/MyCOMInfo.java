@@ -13,11 +13,10 @@ import com.sun.jna.platform.win32.COM.COMUtils.COMInfo;
 public class MyCOMInfo {
 
 	public static void main(String[] args) {
-		FileWriter writer = null;
-		try {
-			String filename = new File(".\\build\\tmp", "CLSIDs.txt").getAbsolutePath();
-			ArrayList<COMInfo> comInfos = COMUtils.getAllCOMInfoOnSystem();
-			writer = new FileWriter(filename);
+
+		String filename = new File(".\\build\\tmp", "CLSIDs.txt").getAbsolutePath();
+		ArrayList<COMInfo> comInfos = COMUtils.getAllCOMInfoOnSystem();
+		try (FileWriter writer = new FileWriter(filename)) {
 
 			for (COMInfo comInfo : comInfos) {
 				if (comInfo.progID != null) {
@@ -36,14 +35,6 @@ public class MyCOMInfo {
 			LOG.info("Found CLSID`s on the system: {0}", comInfos.size());
 		} catch (IOException e) {
 			LOG.severe(e.getLocalizedMessage());
-		} finally {
-			try {
-				if (writer != null) {
-					writer.close();
-				}
-			} catch (IOException e) {
-				LOG.severe(e.getLocalizedMessage());
-			}
 		}
 	}
 

@@ -22,7 +22,6 @@ public class WinOLEExcel {
 		excelApp.setVisible(true);
 
 		// Hole ein Workbook mit JNA
-		// Workbook wb = excelApp.getWorkbooks().Open("C:\\test.xlsx");
 
 		excelApp.Quit();
 	}

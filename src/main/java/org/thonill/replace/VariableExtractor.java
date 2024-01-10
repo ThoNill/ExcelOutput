@@ -17,6 +17,10 @@ import org.thonill.gui.FieldDescription;
 
 public class VariableExtractor {
 
+	private VariableExtractor() {
+		super();
+	}
+
 	public static List<FieldDescription> extractFieldDescriptionsFromFile(String sqlFile) throws IOException {
 		checkNotNull(sqlFile, "VeriableExtractor.extractFieldsFromFile sqlFile is null");
 		checkFileExists(sqlFile, "ExcelOutputApplication.main", sqlFile + " File does not exist");
@@ -33,13 +37,14 @@ public class VariableExtractor {
 		Matcher matcher = pattern.matcher(original);
 		while (matcher.find()) {
 			String fieldName = original.substring(matcher.start() + 1, matcher.end() - 1);
+			// falls ein Feld doppelt vorkommt, wird es ignoriert
 			if (!fields.containsKey(fieldName)) {
 				FieldDescription descr = new FieldDescription(fieldName, "",
 						"" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1).toLowerCase());
 				fields.put(fieldName, descr);
 			}
 		}
-		return new ArrayList<FieldDescription>(fields.values());
+		return new ArrayList<>(fields.values());
 	}
 
 }

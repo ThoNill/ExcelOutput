@@ -535,7 +535,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 
 	@Override
 	public void windowOpened(WindowEvent e) {
-
+		// nicht notwendig
 	}
 
 	@Override
@@ -625,7 +625,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 	}
 
 	private String getPassword() {
-		return passwordField.getText();
+		return new String(passwordField.getPassword());
 	}
 
 	private String getOutputDir() {
