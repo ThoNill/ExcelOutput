@@ -14,7 +14,6 @@ import org.thonill.logger.LOG;
 /**
  * Test class for reading SteuerItems from Excel
  */
-
 public class ReadSteuerItemsTest {
 
 	@Test

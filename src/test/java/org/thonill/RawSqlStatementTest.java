@@ -16,7 +16,6 @@ import org.thonill.sql.ExecutableStatement;
 /**
  * Test class for RawSqlStatement
  */
-
 public class RawSqlStatementTest {
 	private static final Logger LOG = Logger.getLogger(RawSqlStatementTest.class.getName());
 
