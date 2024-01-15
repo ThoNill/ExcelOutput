@@ -5,6 +5,7 @@ package org.thonill;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -43,7 +44,8 @@ public class SqlTest {
 	public static void AppTestinit1() {
 
 		try {
-			ConnectionInfo info = new ConnectionInfo(USER, PASSWORD, "src\\test\\resources\\testDb.properties");
+			ConnectionInfo info = new ConnectionInfo(USER, PASSWORD,
+					new File("src\\test\\resources\\testDb.properties"));
 			try (Connection conn = info.createConnection()) {
 				fillDb(conn);
 			} catch (Exception e) {

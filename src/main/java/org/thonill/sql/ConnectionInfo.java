@@ -25,10 +25,10 @@ public class ConnectionInfo {
 	private String connectionUser;
 	private String connectionPassword;
 	private String connectionDriver;
-	private String connectionInfoPath;
+	private File connectionInfoPath;
 
 	public ConnectionInfo(String connectionDriver, String connectionUrl, String connectionUser,
-			String connectionPassword, String connectionInfoPath) {
+			String connectionPassword, File connectionInfoPath) {
 		this.connectionUrl = connectionUrl;
 		this.connectionUser = connectionUser;
 		this.connectionPassword = connectionPassword;
@@ -43,7 +43,7 @@ public class ConnectionInfo {
 
 	}
 
-	public ConnectionInfo(String connectionUser, String connectionPassword, String connectionInfoPath)
+	public ConnectionInfo(String connectionUser, String connectionPassword, File connectionInfoPath)
 			throws ApplicationException {
 		this.connectionUser = connectionUser;
 		this.connectionPassword = connectionPassword;
@@ -101,11 +101,11 @@ public class ConnectionInfo {
 		if (f.exists()) {
 			return new FileInputStream(f);
 		}
-		return this.getClass().getResourceAsStream(connectionInfoPath);
+		return this.getClass().getResourceAsStream(connectionInfoPath.getName());
 	}
 
 	private File getPropertiesFile() {
-		return new File(connectionInfoPath);
+		return connectionInfoPath;
 	}
 
 }

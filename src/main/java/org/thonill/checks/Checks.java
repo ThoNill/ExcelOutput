@@ -8,9 +8,7 @@ import org.thonill.logger.LOG;
 
 /**
  * This class provides utility methods for performing validation checks.
-*/
-
-/**
+ *
  * Checks if the given file exists.
  *
  * @param fileName The path to the file to check.
@@ -24,9 +22,14 @@ public class Checks {
 		super();
 	}
 
-	public static void checkFileExists(String fileName, String where, String what) {
-		LOG.info(new File(fileName).getAbsolutePath());
+	public static File checkFileExists(String fileName, String where, String what) {
+		if (fileName == null) {
+			return null;
+		}
+		File file = new File(fileName);
+		LOG.info(file.getAbsolutePath());
 		checkArgument(new File(fileName).exists(),
 				"" + where + ": the file " + what + " with the name " + fileName + " does not exist");
+		return file;
 	}
 }

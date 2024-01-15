@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -117,8 +118,8 @@ public class ExecuteStatementTest extends SqlTest {
 
 			ExecutableStatementSet statementSet = new ExecutableStatementSet();
 			statementSet.add(new ExecutableStatement("SELECT id as __id, name, ort FROM kunden"));
-			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabe.xls",
-					"src\\test\\resources\\TestVorlage.xls");
+			statementSet.writeToOutputFile(conn, new File("build\\tmp\\test\\TestAusgabe.xls"),
+					new File("src\\test\\resources\\TestVorlage.xls"));
 
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
@@ -132,20 +133,20 @@ public class ExecuteStatementTest extends SqlTest {
 		try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
 			ExecutableStatementSet statementSet = new ExecutableStatementSet();
 			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.xls",
-					"src\\test\\resources\\RechnungVorlage.xls");
+			statementSet.writeToOutputFile(conn, new File("build\\tmp\\test\\TestAusgabeRechnung.xls"),
+					new File("src\\test\\resources\\RechnungVorlage.xls"));
 
 			statementSet = new ExecutableStatementSet();
 			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
 			statementSet.add(new ExecutableStatement("SELECT name as _KundenName FROM kunden  where id = 5 "));
 
-			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnungBereich.xls",
-					"src\\test\\resources\\RechnungVorlageBereich.xls");
+			statementSet.writeToOutputFile(conn, new File("build\\tmp\\test\\TestAusgabeRechnungBereich.xls"),
+					new File("src\\test\\resources\\RechnungVorlageBereich.xls"));
 
 			statementSet = new ExecutableStatementSet();
 			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.xlsx",
-					"src\\test\\resources\\RechnungVorlage.xlsx");
+			statementSet.writeToOutputFile(conn, new File("build\\tmp\\test\\TestAusgabeRechnung.xlsx"),
+					new File("src\\test\\resources\\RechnungVorlage.xlsx"));
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
 			fail("Query execution failed" + e.getMessage());
@@ -158,7 +159,7 @@ public class ExecuteStatementTest extends SqlTest {
 		try (Connection conn = DriverManager.getConnection(url, USER, PASSWORD)) {
 			ExecutableStatementSet statementSet = new ExecutableStatementSet();
 			statementSet.add(new ExecutableStatement("SELECT * FROM rechnung where kunde in (1,2) order by kunde "));
-			statementSet.writeToOutputFile(conn, "build\\tmp\\test\\TestAusgabeRechnung.csv", null);
+			statementSet.writeToOutputFile(conn, new File("build\\tmp\\test\\TestAusgabeRechnung.csv"), null);
 
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());

@@ -2,8 +2,8 @@ package org.thonill.excel;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.thonill.checks.Checks.checkFileExists;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,13 +26,12 @@ import org.thonill.logger.LOG;
 
 public class ReadSteuerItems {
 
-	private String excelFileName;
+	private File excelFileName;
 	private List<String> header = new ArrayList<>();
 
-	public ReadSteuerItems(String excelFileName) {
+	public ReadSteuerItems(File excelFileName) {
 		this.excelFileName = excelFileName;
 		checkNotNull(excelFileName, "ReadSteuerItems.ReadSteuerItems: excelFileName is null");
-		checkFileExists(excelFileName, "ReadSteuerItems.ReadSteuerItems", "excelFileName");
 
 	}
 

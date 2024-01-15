@@ -2,6 +2,7 @@ package org.thonill;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -24,7 +25,7 @@ public class AusgabeSteuerItemTest extends SqlTest {
 	void testCreateAusgabeDateien() {
 		try {
 			try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-				FileCreator.createAusgabeDateien("src\\test\\resources\\Steuerung.xls", conn);
+				FileCreator.createAusgabeDateien(new File("src\\test\\resources\\Steuerung.xls"), conn);
 			}
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());

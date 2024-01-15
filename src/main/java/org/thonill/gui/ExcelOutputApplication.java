@@ -1,11 +1,14 @@
 package org.thonill.gui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
 import org.thonill.actions.FileCreator;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.logger.LOG;

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.thonill.checks.Checks;
 import org.thonill.excel.ReadSteuerItems;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.gui.ActiveArguments;
@@ -26,11 +27,11 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	protected Map<String, String> daten;
 	private String user;
 	private String password;
-	private String dbFile;
-	private String outputDir;
+	private File dbFile;
+	private File outputDir;
 	private String outputFile;
-	private String templateFile;
-	private String sqlFile;
+	private File templateFile;
+	private File sqlFile;
 	private ExportArt exportArt;
 
 	public FileCreator() {
@@ -52,10 +53,13 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 		case CSV:
 			break;
 		case STEUERDATEI:
-			this.templateFile = getValue(datenMap, STEUER_DATEI, true);
+			this.templateFile = Checks.checkFileExists(getValue(datenMap, STEUER_DATEI, true),
+					"FileCreator.constructor", STEUER_DATEI);
+			;
 			break;
 		case VORLAGE:
-			this.templateFile = getValue(datenMap, EXCEL_VORLAGE, true);
+			this.templateFile = Checks.checkFileExists(getValue(datenMap, EXCEL_VORLAGE, true),
+					"FileCreator.constructor", EXCEL_VORLAGE);
 			break;
 		default:
 			break;
@@ -250,10 +254,9 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public static void createAusgabeDateien(String steuerDatei, Connection conn) throws IOException, SQLException {
+	public static void createAusgabeDateien(File steuerDatei, Connection conn) throws IOException, SQLException {
 		checkNotNull(steuerDatei, "FileCreator.createAusgabeDateien: steuerDatei is null");
 		checkNotNull(conn, "FileCreator.createAusgabeDateien: conn is null");
-		checkFileExists(steuerDatei, "FileCreator.createAusgabeDateien", "steuerDatei");
 
 		ReadSteuerItems readSteuerItems = new ReadSteuerItems(steuerDatei);
 		List<FileCreator> items = readSteuerItems.readSteuerItemsFromExcel();
@@ -287,19 +290,19 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 
 	@Override
 	public void setDbFile(String dbFile) {
-		this.dbFile = dbFile;
+		this.dbFile = Checks.checkFileExists(dbFile, "FileCreator.setDbFile", "setDbFile");
 	}
 
-	public String getAusgabePath() {
+	public File getAusgabePath() {
 		if (outputDir == null) {
-			return outputFile;
+			return new File(outputFile);
 		}
-		return new File(outputDir, outputFile).getAbsolutePath();
+		return new File(outputDir, outputFile);
 	}
 
 	@Override
 	public void setAusgabeDir(String ausgabeDir) {
-		this.outputDir = ausgabeDir;
+		this.outputDir = Checks.checkFileExists(ausgabeDir, "FileCreator.setAusgabeDir", "setAusgabeDir");
 	}
 
 	@Override
@@ -309,12 +312,12 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 
 	@Override
 	public void setTemplateFile(String templateFile) {
-		this.templateFile = templateFile;
+		this.templateFile = Checks.checkFileExists(templateFile, "FileCreator.setTemplateFile", "templateFile");
 	}
 
 	@Override
 	public void setSqlFile(String sqlFile) {
-		this.sqlFile = sqlFile;
+		this.sqlFile = Checks.checkFileExists(sqlFile, "FileCreator.setSqlFilesetTemplateFile", "sqlFile");
 	}
 
 	@Override

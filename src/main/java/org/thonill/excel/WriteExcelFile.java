@@ -1,8 +1,8 @@
 package org.thonill.excel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.thonill.checks.Checks.checkFileExists;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,17 +26,16 @@ public class WriteExcelFile {
 		super();
 	}
 
-	private Workbook createWorkbook(String excelFileName) throws EncryptedDocumentException, IOException {
+	private Workbook createWorkbook(File excelFileName) throws EncryptedDocumentException, IOException {
 		// Open Excel workbook
 		in = new FileInputStream(excelFileName);
 		return WorkbookFactory.create(in);
 	}
 
-	public void writeResultSetToExcel(String ausgabeDatei, String vorlageDatei, ResultOfStatments result)
+	public void writeResultSetToExcel(File ausgabeDatei, File vorlageDatei, ResultOfStatments result)
 			throws EncryptedDocumentException, IOException {
 		checkNotNull(result, "WriteExcel_xls.writeResultSetToExcel: result is null");
 		checkNotNull(vorlageDatei, "WriteExcel_xls.writeResultSetToExcel: excelFileName is null");
-		checkFileExists(vorlageDatei, "WriteExcel_xls.writeResultSetToExcel", "excelFileName");
 
 		// Open Excel workbook
 		LOG.info("// Open Excel workbook");
@@ -54,7 +53,7 @@ public class WriteExcelFile {
 
 	}
 
-	private void writeToFile(String ausgabeDatei, Workbook workbook) throws IOException {
+	private void writeToFile(File ausgabeDatei, Workbook workbook) throws IOException {
 		// Write output
 		LOG.info("// Write output");
 		FileOutputStream fileOut = new FileOutputStream(ausgabeDatei);

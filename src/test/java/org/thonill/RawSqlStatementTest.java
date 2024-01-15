@@ -3,6 +3,7 @@ package org.thonill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -50,7 +51,7 @@ public class RawSqlStatementTest {
 	void testGetRawSqlStatements() {
 		try {
 			List<RawSqlStatement> statements = RawSqlStatement
-					.getRawSqlStatements("src\\test\\resources\\sqlTest1.sql");
+					.getRawSqlStatements(new File("src\\test\\resources\\sqlTest1.sql"));
 
 			for (RawSqlStatement statement : statements) {
 				LOG.info(statement.getQueryString());

@@ -2,6 +2,7 @@ package org.thonill.excel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,11 +24,12 @@ public class WriteCSVFile {
 		super();
 	}
 
-	public static void writeResultSetToCSV(String filePath, boolean writeHeaders, ArrayValue arrayValue)
+	public static void writeResultSetToCSV(File filePath, boolean writeHeaders, ArrayValue arrayValue)
 			throws IOException, SQLException {
 		checkNotNull(arrayValue, "WriteCSVFile.writeResultSetToCSV: arrayValue is null");
 		checkNotNull(filePath, "WriteCSVFile.writeResultSetToCSV: filePath is null");
 
+		
 		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setDelimiter(';').setRecordSeparator("\n").build();
 		try (FileWriter fileWriter = new FileWriter(filePath, Charsets.UTF_8);
 				CSVPrinter csvPrinter = new CSVPrinter(fileWriter, csvFormat)) {
