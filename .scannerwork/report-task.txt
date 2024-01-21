@@ -1,0 +1,6 @@
+projectKey=thoNill:ExcelOutput
+serverUrl=http://localhost:9000
+serverVersion=7.6.0.21501
+dashboardUrl=http://localhost:9000/dashboard?id=thoNill%3AExcelOutput
+ceTaskId=AY0OU1P4CEbk15NAO4uO
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AY0OU1P4CEbk15NAO4uO

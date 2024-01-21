@@ -1,0 +1,1 @@
+d:\projekte\gradlew.bat test --tests ApplicationDialogTest --rerun-tasks

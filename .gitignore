@@ -1,10 +1,15 @@
-/libs/
-/bin
-/build/
-/.scannerwork
-/.gradle/
-/ExcelExport.properties
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+/bin/
+/buildSrc/
 /caches/
 /daemon/
-/native/
 /wrapper/
+/jdks/
+/native/
+/workers/
+/.tmp/
+/.gradle/
