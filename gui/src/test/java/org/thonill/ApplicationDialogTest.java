@@ -47,7 +47,7 @@ public class ApplicationDialogTest extends SqlGuiTest {
 	}
 
 	private void setDatenChecker(ExcelOutputApplication app) {
-		HashMap<String,String> map = new HashMap();
+		HashMap<String,String> map = new HashMap<>();
 		map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$"); 
 		map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$"); 
 		map.put("jahr", "^ *20[0-9][0-9] *(,20[0-9][0-9])* *$");
