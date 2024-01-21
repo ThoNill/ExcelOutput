@@ -5,11 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-public class HashCheck {
+public class DefaultMapCheck implements MapCheck {
 
 	private Map<String, Pattern> patterns = new HashMap<>();
 
-	HashCheck(Map<String, String> stringPattern) {
+	public DefaultMapCheck(Map<String, String> stringPattern) {
 		for (Entry<String, String> e : stringPattern.entrySet()) {
 			put(e.getKey(), e.getValue());
 		}
@@ -19,6 +19,7 @@ public class HashCheck {
 		patterns.put(key, Pattern.compile(value));
 	}
 
+	@Override
 	public boolean check(Map<String, String> testMe) {
 		for (Entry<String, String> e : testMe.entrySet()) {
 			String key = e.getKey();

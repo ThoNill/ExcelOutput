@@ -29,13 +29,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.thonill.actions.ActiveArguments;
 import org.thonill.actions.ExportArt;
-import org.thonill.actions.FileCreator;
 import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 
@@ -63,7 +61,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 
 	private JRadioButton csvFileRadioButton;
 	private JLabel outputLabel;
-
+	
 	public ApplicationDialog(ActiveArguments arguments) {
 		super("Swing Anwendung");
 		this.arguments = arguments;
@@ -506,28 +504,6 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 		// panel.add(Box.createGlue()); geht nicht so gut
 	}
 
-	public static void main(String[] args) {
-		FileCreator excel = new FileCreator();
-		ApplicationDialog app = new ApplicationDialog(excel);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				app.setVisible(true);
-			}
-		});
-		app.waitUntilTheEnd();
-	}
-
-	private void waitUntilTheEnd() {
-		while (run) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				LOG.severe(e.getLocalizedMessage());
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
 
 	public void msgBox(String message, int messageType) {
 		JOptionPane.showMessageDialog(this, message, "Message", messageType);

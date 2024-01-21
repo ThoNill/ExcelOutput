@@ -6,8 +6,11 @@ package org.thonill;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.thonill.checks.DefaultMapCheck;
+import org.thonill.checks.MapCheck;
 import org.thonill.gui.ExcelOutputApplication;
 import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
@@ -38,7 +41,19 @@ public class ApplicationDialogTest extends SqlGuiTest {
 		addResource(args, StandardKeys.STEUER_DATEI, steuerFile);
 		addResource(args, StandardKeys.EXCEL_VORLAGE, templateFile);
 		addOutput(args, StandardKeys.AUSGABE_DATEI, outputFile);
-		new ExcelOutputApplication().main(args);
+		ExcelOutputApplication app = new ExcelOutputApplication();
+		setDatenChecker(app);
+		app.main(args);
+	}
+
+	private void setDatenChecker(ExcelOutputApplication app) {
+		HashMap<String,String> map = new HashMap();
+		map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$"); 
+		map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$"); 
+		map.put("jahr", "^ *20[0-9][0-9] *(,20[0-9][0-9])* *$");
+		
+		MapCheck check = new DefaultMapCheck(map);
+		app.setCheckDaten(check);
 	}
 
 	@Test

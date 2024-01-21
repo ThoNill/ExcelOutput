@@ -98,7 +98,7 @@ public class ConnectionInfo {
 	private InputStream getInputStream() throws IOException {
 		File f = getPropertiesFile();
 
-		if (f.exists()) {
+		if (f != null && f.exists()) {
 			return new FileInputStream(f);
 		}
 		return this.getClass().getResourceAsStream(connectionInfoPath.getName());

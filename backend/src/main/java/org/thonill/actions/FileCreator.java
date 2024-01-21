@@ -5,6 +5,7 @@ import static org.thonill.checks.Checks.checkFileExists;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.thonill.checks.Checks;
+import org.thonill.checks.MapCheck;
 import org.thonill.excel.ReadSteuerItems;
 import org.thonill.exceptions.ApplicationException;
 import org.thonill.keys.StandardKeys;
@@ -26,12 +28,16 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	protected Map<String, String> daten;
 	private String user;
 	private String password;
-	private File dbFile;
 	private File outputDir;
 	private String outputFile;
 	private File templateFile;
 	private File sqlFile;
 	private ExportArt exportArt;
+	
+	private MapCheck checkDaten;
+
+	private File dbFile;
+	private String sqlQuerys;
 
 	public FileCreator() {
 		super();
@@ -74,9 +80,10 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	private void checkArguments() {
 		LOG.info("Starte checkArguments");
 
+		checkNotNull(this.checkDaten, "keine Pruefung der Eingabedaten in FileCreator.checkArguments ");
+		
 		checkNotNull(this.dbFile, "this.dbFilewe need -dbDatei ");
-
-		checkNotNull(this.sqlFile, "we need -sqlFile ");
+		checkNotNull(this.sqlQuerys, "we need -sqlFile or setSqlQuerys");
 		checkNotNull(this.user, "user is not defined");
 		checkNotNull(this.password, "password is not defined");
 
@@ -155,8 +162,9 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	public void createAusgabeDatei(Connection conn) throws IOException, SQLException {
 
 		checkNotNull(conn, "FileCreator.createAusgabeDatei: conn is null");
+		checkDaten();
 
-		List<RawSqlStatement> rawStatements = RawSqlStatement.getRawSqlStatements(this.sqlFile);
+		List<RawSqlStatement> rawStatements = RawSqlStatement.getRawSqlStatements(this.sqlQuerys);
 
 		List<ReplaceDescription> descr = RawSqlStatement.createReplaceDescriptions(this.daten);
 
@@ -166,6 +174,13 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 
 		executableStatements.writeToOutputFile(conn, getAusgabePath(), this.templateFile);
 
+	}
+
+	private void checkDaten() {
+		if(!checkDaten.check(this.daten)) {
+			throw new ApplicationException("Daten sind nicht erlaubt");
+		}
+		
 	}
 
 	protected String getFilePath(String argName) {
@@ -317,11 +332,20 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	@Override
 	public void setSqlFile(String sqlFile) {
 		this.sqlFile = Checks.checkFileExists(sqlFile, "FileCreator.setSqlFilesetTemplateFile", "sqlFile");
+		try {
+			sqlQuerys = Files.readString(this.sqlFile.toPath());
+		} catch (Exception e) {
+			throw new ApplicationException(e);
+		}
 	}
 
 	@Override
 	public void setExportArt(ExportArt exportArt) {
 		this.exportArt = exportArt;
+	}
+
+	public void setCheckDaten(MapCheck checkDaten) {
+		this.checkDaten = checkDaten;
 	}
 
 }

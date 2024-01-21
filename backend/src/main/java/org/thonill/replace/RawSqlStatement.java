@@ -2,9 +2,7 @@ package org.thonill.replace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +29,9 @@ public class RawSqlStatement {
 		return query;
 	}
 
-	public static List<RawSqlStatement> getRawSqlStatements(File sqlFile) throws IOException {
-		checkNotNull(sqlFile, "RawSqlStatement.getRawSqlStatements: sqlFile is null");
-		String querys = Files.readString(sqlFile.toPath());
+	public static List<RawSqlStatement> getRawSqlStatements(String querys) throws IOException {
+		checkNotNull(querys, "RawSqlStatement.getRawSqlStatements: querys is null");
+		
 		LOG.info("Querys: {0} ", querys.replaceAll("\n", "\\\\n").replaceAll("\r", "\\\\r"));
 		SplitSqlText splitter = new SplitSqlText();
 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -49,8 +50,10 @@ public class RawSqlStatementTest {
 	@Test
 	void testGetRawSqlStatements() {
 		try {
+			File f = new File("src\\test\\resources\\sqlTest1.sql");
+			String sqlQuerys = Files.readString(f.toPath());
 			List<RawSqlStatement> statements = RawSqlStatement
-					.getRawSqlStatements(new File("src\\test\\resources\\sqlTest1.sql"));
+					.getRawSqlStatements(sqlQuerys);
 
 			for (RawSqlStatement statement : statements) {
 				LOG.info(statement.getQueryString());

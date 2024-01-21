@@ -2,8 +2,6 @@ package org.thonill.actions;
 
 import java.sql.Connection;
 
-import org.thonill.actions.ExportArt;
-
 public interface ActiveArguments extends Runnable {
 	void put(String key, String value);
 
