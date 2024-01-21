@@ -243,12 +243,13 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public static void createAusgabeDateien(List<FileCreator> steuerItems, Connection conn)
+	public void createAusgabeDateien(List<FileCreator> steuerItems, Connection conn)
 			throws IOException, SQLException {
 		checkNotNull(steuerItems, "FileCreator.createAusgabeDateien: steuerItems is null");
 		checkNotNull(conn, "FileCreator.createAusgabeDateien: conn is null");
 
 		for (FileCreator item : steuerItems) {
+			item.setCheckDaten(checkDaten);
 			item.createAusgabeDatei(conn);
 		}
 	}
@@ -268,7 +269,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public static void createAusgabeDateien(File steuerDatei, Connection conn) throws IOException, SQLException {
+	public void createAusgabeDateien(File steuerDatei, Connection conn) throws IOException, SQLException {
 		checkNotNull(steuerDatei, "FileCreator.createAusgabeDateien: steuerDatei is null");
 		checkNotNull(conn, "FileCreator.createAusgabeDateien: conn is null");
 
