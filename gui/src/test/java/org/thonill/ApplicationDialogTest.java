@@ -52,6 +52,13 @@ public class ApplicationDialogTest extends SqlGuiTest {
 		map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$"); 
 		map.put("jahr", "^ *20[0-9][0-9] *(,20[0-9][0-9])* *$");
 		
+		// zusätzlich zur Ausgabe von Steuerdateien
+		map.put("kunde", "^ *[0-9]+ *$");
+		map.put("sqlDatei", "^[0-9a-zA-Z\\\\/]*\\.sql$");
+		map.put("dbDatei", "^[0-9a-zA-Z\\\\/]*\\.properties$");
+		map.put("ausgabeDatei", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx|csv)$");
+		map.put("excelVorlage", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx)$");
+		
 		MapCheck check = new DefaultMapCheck(map);
 		app.setCheckDaten(check);
 	}

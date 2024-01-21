@@ -26,18 +26,20 @@ public class AusgabeSteuerItemTest extends SqlTest {
 
 	@Test
 	void testCreateAusgabeDateien() {
-		try {
-			try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
+		try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
 				FileCreator fc = new FileCreator();
 				HashMap<String, String> map = new HashMap<>();
-				map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$"); 
-				map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$"); 
+				map.put("kunde", "^ *[0-9]+ *$");
+				map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$");
+				map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$");
 				map.put("jahr", "^ *20[0-9][0-9] *(,20[0-9][0-9])* *$");
 
+				map.put("sqlDatei", "^[0-9a-zA-Z\\\\/]*\\.sql$");
+				map.put("ausgabeDatei", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx|csv)$");
+				map.put("excelVorlage", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx)$");
 				MapCheck check = new DefaultMapCheck(map);
 				fc.setCheckDaten(check);
 				fc.createAusgabeDateien(new File("src\\test\\resources\\Steuerung.xls"), conn);
-			}
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
 			fail("Creations of files failed");

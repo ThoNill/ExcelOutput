@@ -177,10 +177,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	}
 
 	private void checkDaten() {
-		if(!checkDaten.check(this.daten)) {
-			throw new ApplicationException("Daten sind nicht erlaubt");
-		}
-		
+		checkDaten.checkWithException(this.daten);
 	}
 
 	protected String getFilePath(String argName) {
