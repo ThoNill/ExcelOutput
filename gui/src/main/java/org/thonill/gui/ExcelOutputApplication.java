@@ -129,7 +129,7 @@ public class ExcelOutputApplication extends FileCreator {
 		setAusgabeDatei(args.get(AUSGABE_DATEI_NAME));
 		setAusgabeDir(args.get(AUSGABE_DIR));
 		setTemplateFile(args.get(VORLAGE));
-		setUser(args.get(USER));
+		setUserAndPassword(args.get(USER),"");
 
 	}
 }

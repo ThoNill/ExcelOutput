@@ -35,30 +35,36 @@ public class ApplicationDialogTest extends SqlGuiTest {
 	}
 
 	private void callMain(String sqlFile, String steuerFile, String templateFile, String outputFile) {
-		HashMap<String, String> args = new HashMap<>();
-		addResource(args, StandardKeys.DB_DATEI, "testDb.properties");
-		addResource(args, StandardKeys.SQL_DATEI, sqlFile);
-		addResource(args, StandardKeys.STEUER_DATEI, steuerFile);
-		addResource(args, StandardKeys.EXCEL_VORLAGE, templateFile);
-		addOutput(args, StandardKeys.AUSGABE_DATEI, outputFile);
-		ExcelOutputApplication app = new ExcelOutputApplication();
-		setDatenChecker(app);
-		app.main(args);
+		try {
+			HashMap<String, String> args = new HashMap<>();
+			args.put(StandardKeys.USER,"sa");
+			addResource(args, StandardKeys.DB_DATEI, "testDb.properties");
+			addResource(args, StandardKeys.SQL_DATEI, sqlFile);
+			addResource(args, StandardKeys.STEUER_DATEI, steuerFile);
+			addResource(args, StandardKeys.EXCEL_VORLAGE, templateFile);
+			addOutput(args, StandardKeys.AUSGABE_DATEI, outputFile);
+			ExcelOutputApplication app = new ExcelOutputApplication();
+			setDatenChecker(app);
+			app.main(args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void setDatenChecker(ExcelOutputApplication app) {
-		HashMap<String,String> map = new HashMap<>();
-		map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$"); 
-		map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$"); 
+		HashMap<String, String> map = new HashMap<>();
+		map.put("kunden", "^ *[0-9]+ *(, *[0-9]+)* *$");
+		map.put("monat", "^ *(1[0-2]|[0-9]) *(,1[0-2]|,[1-9])* *$");
 		map.put("jahr", "^ *20[0-9][0-9] *(,20[0-9][0-9])* *$");
-		
+
 		// zusätzlich zur Ausgabe von Steuerdateien
 		map.put("kunde", "^ *[0-9]+ *$");
 		map.put("sqlDatei", "^[0-9a-zA-Z\\\\/]*\\.sql$");
 		map.put("dbDatei", "^[0-9a-zA-Z\\\\/]*\\.properties$");
 		map.put("ausgabeDatei", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx|csv)$");
 		map.put("excelVorlage", "^[0-9a-zA-Z\\\\/]*\\.(xls|xlsx)$");
-		
+		map.put("user", "^[a-zA-Z0-9]+$");
+
 		MapCheck check = new DefaultMapCheck(map);
 		app.setCheckDaten(check);
 	}

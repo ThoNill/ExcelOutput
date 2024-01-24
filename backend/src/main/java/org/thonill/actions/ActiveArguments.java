@@ -11,9 +11,9 @@ public interface ActiveArguments extends Runnable {
 
 	void stop();
 
-	public void setUser(String user);
-
-	public void setPassword(String password);
+	public void setDriver(String connectionDriver, String connectionUrl);
+	
+	public void setUserAndPassword(String user,String password);
 
 	public void setDbFile(String dbFile);
 

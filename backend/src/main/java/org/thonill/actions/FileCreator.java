@@ -20,20 +20,20 @@ import org.thonill.keys.StandardKeys;
 import org.thonill.logger.LOG;
 import org.thonill.replace.RawSqlStatement;
 import org.thonill.replace.ReplaceDescription;
-import org.thonill.sql.ConnectionInfo;
+import org.thonill.sql.ConnectionCreator;
 import org.thonill.sql.ExecutableStatementSet;
 
 public class FileCreator implements ActiveArguments, StandardKeys {
 
 	protected Map<String, String> daten;
-	private String user;
-	private String password;
+
+	private ConnectionCreator dbInfo;
 	private File outputDir;
 	private String outputFile;
 	private File templateFile;
 	private File sqlFile;
 	private ExportArt exportArt;
-	
+
 	private MapCheck checkDaten;
 
 	private File dbFile;
@@ -41,6 +41,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 
 	public FileCreator() {
 		super();
+		dbInfo = new ConnectionCreator();
 		this.daten = new HashMap<>();
 	}
 
@@ -49,6 +50,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	 * provided data map. Validates required fields and file paths.
 	 */
 	public FileCreator(Map<String, String> datenMap) {
+		this();
 		setDaten(datenMap);
 		setAusgabeDatei(getValue(datenMap, AUSGABE_DATEI, true));
 		setSqlFile(getValue(datenMap, SQL_DATEI, true));
@@ -73,19 +75,18 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	}
 
 	protected boolean die_Parameter_reichen_zur_Ausführung() {
-		return this.dbFile != null && this.user != null && this.password != null && this.outputFile != null
-				&& (outputFile.endsWith(".csv") || (this.templateFile != null));
+		return this.dbInfo.die_Parameter_reichen_zur_Ausführung()
+				&& (outputFile != null && outputFile.endsWith(".csv") || (this.templateFile != null));
 	}
 
 	private void checkArguments() {
 		LOG.info("Starte checkArguments");
+		if (!die_Parameter_reichen_zur_Ausführung()) {
+			throw new ApplicationException("Die Daten reichen nicht zur Ausführung");
+		}
 
 		checkNotNull(this.checkDaten, "keine Pruefung der Eingabedaten in FileCreator.checkArguments ");
-		
-		checkNotNull(this.dbFile, "this.dbFilewe need -dbDatei ");
 		checkNotNull(this.sqlQuerys, "we need -sqlFile or setSqlQuerys");
-		checkNotNull(this.user, "user is not defined");
-		checkNotNull(this.password, "password is not defined");
 
 		LOG.info("nach checkArguments");
 	}
@@ -113,7 +114,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	}
 
 	private void createFiles() {
-		try (Connection conn = createConnectionInfo().createConnection()) {
+		try (Connection conn = createConnection()) {
 			createFiles(conn);
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
@@ -196,13 +197,9 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 		return value;
 	}
 
-	private ConnectionInfo createConnectionInfo() {
-		return new ConnectionInfo(user, password, dbFile);
-	}
-
 	@Override
 	public Connection createConnection() {
-		return createConnectionInfo().createConnection();
+		return this.dbInfo.createConnection();
 	}
 
 	@Override
@@ -240,8 +237,7 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void createAusgabeDateien(List<FileCreator> steuerItems, Connection conn)
-			throws IOException, SQLException {
+	public void createAusgabeDateien(List<FileCreator> steuerItems, Connection conn) throws IOException, SQLException {
 		checkNotNull(steuerItems, "FileCreator.createAusgabeDateien: steuerItems is null");
 		checkNotNull(conn, "FileCreator.createAusgabeDateien: conn is null");
 
@@ -291,18 +287,19 @@ public class FileCreator implements ActiveArguments, StandardKeys {
 	}
 
 	@Override
-	public void setUser(String user) {
-		this.user = user;
+	public void setUserAndPassword(String user, String password) {
+		this.dbInfo.setUserAndPassword(user, password);
 	}
 
 	@Override
-	public void setPassword(String password) {
-		this.password = password;
+	public void setDriver(String connectionDriver, String connectionUrl) {
+		this.dbInfo.setDriver(connectionDriver, connectionUrl);
 	}
 
 	@Override
 	public void setDbFile(String dbFile) {
-		this.dbFile = Checks.checkFileExists(dbFile, "FileCreator.setDbFile", "setDbFile");
+		this.dbInfo.setDbFile(Checks.checkFileExists(dbFile, "FileCreator.setDbFile", "setDbFile"));
+
 	}
 
 	public File getAusgabePath() {

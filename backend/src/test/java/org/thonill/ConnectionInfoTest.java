@@ -8,13 +8,13 @@ import java.sql.Connection;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
-import org.thonill.sql.ConnectionInfo;
+import org.thonill.sql.ConnectionCreator;
 
 /**
- * Test class for ConnectionInfo
+ * Test class for ConnectionCreator
  */
 
-public class ConnectionInfoTest extends SqlTest {
+public class ConnectionCreatorTest extends SqlTest {
 
 	@BeforeAll
 	public static void ConnectionInfoTestInit() {
@@ -26,7 +26,7 @@ public class ConnectionInfoTest extends SqlTest {
 	@Test
 	void testGetConnection() {
 		try {
-			ConnectionInfo info = new ConnectionInfo("sa", "", new File("src\\test\\resources\\testDb.properties"));
+			ConnectionCreator info = createConnectionInfo();
 			try (Connection conn = info.createConnection()) {
 				assert (conn != null);
 			} catch (Exception e) {
@@ -43,7 +43,8 @@ public class ConnectionInfoTest extends SqlTest {
 	@Test
 	void testGetWrongUserConnection() {
 		try {
-			ConnectionInfo info = new ConnectionInfo("user", "", new File("src\\test\\resources\\testDb.properties"));
+			ConnectionCreator info = createConnectionInfo();
+			info.setUserAndPassword("sa1"," ");
 			try (Connection conn = info.createConnection()) {
 				assert (conn != null);
 				fail("connection to db does not faile");

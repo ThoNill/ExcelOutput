@@ -61,7 +61,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 
 	private JRadioButton csvFileRadioButton;
 	private JLabel outputLabel;
-	
+
 	public ApplicationDialog(ActiveArguments arguments) {
 		super("Swing Anwendung");
 		this.arguments = arguments;
@@ -334,8 +334,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 		arguments.setAusgabeDatei(getFileName());
 		arguments.setAusgabeDir(getOutputDir());
 		arguments.setTemplateFile(getTemplateFile());
-		arguments.setUser(getUser());
-		arguments.setPassword(getPassword());
+		arguments.setUserAndPassword(getUser(), getPassword());
 		arguments.setExportArt(getExportArt());
 
 		dynamicFields.storeArguments(arguments);
@@ -453,8 +452,7 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 			public void actionPerformed(ActionEvent ae) {
 
 				try {
-					arguments.setUser(getUser());
-					arguments.setPassword(getPassword());
+					arguments.setUserAndPassword(getUser(), getPassword());
 
 					Connection conn = arguments.createConnection();
 					conn.close();
@@ -503,7 +501,6 @@ public class ApplicationDialog extends JFrame implements WindowListener, Standar
 		panel.add(glue);
 		// panel.add(Box.createGlue()); geht nicht so gut
 	}
-
 
 	public void msgBox(String message, int messageType) {
 		JOptionPane.showMessageDialog(this, message, "Message", messageType);

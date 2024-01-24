@@ -19,7 +19,7 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.thonill.logger.LOG;
-import org.thonill.sql.ConnectionInfo;
+import org.thonill.sql.ConnectionCreator;
 
 /**
  * SqlTest provides tests for database connectivity and operations.
@@ -44,8 +44,7 @@ public class SqlTest {
 	public static void AppTestinit1() {
 
 		try {
-			ConnectionInfo info = new ConnectionInfo(USER, PASSWORD,
-					new File("src\\test\\resources\\testDb.properties"));
+			ConnectionCreator info = createConnectionInfo();
 			try (Connection conn = info.createConnection()) {
 				fillDb(conn);
 			} catch (Exception e) {
@@ -54,6 +53,13 @@ public class SqlTest {
 		} catch (Exception e) {
 			LOG.severe(e.getLocalizedMessage());
 		}
+	}
+
+	protected static ConnectionCreator createConnectionInfo() {
+		ConnectionCreator info = new ConnectionCreator();
+		info.setUserAndPassword(USER, PASSWORD);
+		info.setDbFile(new File("src\\test\\resources\\testDb.properties"));
+		return info;
 	}
 
 	public static void fillDb() throws SQLException {
